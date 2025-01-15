@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
+import '../../../core/widgets/loading_animation.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../../../data/models/rental.dart';
 import '../../../data/models/station.dart';
@@ -62,7 +63,11 @@ class _HomeContent extends StatelessWidget {
               child: Consumer<HomeViewModel>(
                 builder: (context, viewModel, child) {
                   if (viewModel.isLoading) {
-                    return const Center(child: CupertinoActivityIndicator());
+                    return const Center(
+                      child: HoneyLoadingAnimation(
+                        isStationSelected: false,
+                      ),
+                    );
                   }
                   if (viewModel.error != null) {
                     return Center(child: Text(viewModel.error!));

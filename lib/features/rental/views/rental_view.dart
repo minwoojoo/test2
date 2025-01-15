@@ -8,6 +8,7 @@ import '../../../app/routes.dart';
 import './rental_detail_view.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
+import '../../../core/widgets/loading_animation.dart';
 
 class RentalView extends StatelessWidget {
   const RentalView({super.key});
@@ -59,7 +60,11 @@ class _RentalContent extends StatelessWidget {
               child: Consumer<RentalViewModel>(
                 builder: (context, viewModel, child) {
                   if (viewModel.isLoading) {
-                    return const Center(child: CupertinoActivityIndicator());
+                    return const Center(
+                      child: HoneyLoadingAnimation(
+                        isStationSelected: false,
+                      ),
+                    );
                   }
 
                   if (viewModel.error != null) {

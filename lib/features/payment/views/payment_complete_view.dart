@@ -15,84 +15,50 @@ class PaymentCompleteView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('결제 완료'),
-      ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                CupertinoIcons.checkmark_circle_fill,
-                color: AppColors.primary,
-                size: 80,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                '결제가 완료되었습니다',
-                style: AppTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '대여가 시작되었습니다.\n즐거운 시간 보내세요!',
-                style: AppTheme.bodyMedium.copyWith(color: AppColors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              _buildOrderSummary(),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: CupertinoButton(
-                  color: AppColors.primary,
-                  onPressed: () => Navigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.home, (route) => false),
-                  child: const Text(
-                    '홈으로 돌아가기',
-                    style: TextStyle(color: AppColors.black),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('🩷', style: TextStyle(fontSize: 50)),
+                  const SizedBox(width: 16),
+                  Image.asset(
+                    'assets/images/payment_complete.png',
+                    width: 50,
+                    height: 50,
                   ),
+                  const SizedBox(width: 16),
+                  const Text('🩷', style: TextStyle(fontSize: 50)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                '결제가 완료되었습니다',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
+              const Spacer(),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: 56,
+                child: CupertinoButton.filled(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacementNamed(Routes.home);
+                  },
+                  child: const Text('홈으로 돌아가기'),
+                ),
+              ),
+              const SizedBox(height: 50),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildOrderSummary() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.lightGrey),
-      ),
-      child: Column(
-        children: [
-          _buildInfoRow('대여 ID', rental.id),
-          const SizedBox(height: 8),
-          _buildInfoRow('대여 시간', '${rental.startTime} ~ ${rental.endTime}'),
-          const SizedBox(height: 8),
-          _buildInfoRow('결제 금액', '${rental.totalPrice}원'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTheme.bodyMedium.copyWith(color: AppColors.grey),
-        ),
-        Text(value, style: AppTheme.bodyMedium),
-      ],
     );
   }
 }

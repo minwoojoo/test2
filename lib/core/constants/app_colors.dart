@@ -1,13 +1,30 @@
 import 'package:flutter/cupertino.dart';
 
 class AppColors {
-  static const primary = CupertinoColors.activeBlue;
-  static const error = CupertinoColors.destructiveRed;
-  static const lightGrey = CupertinoColors.systemGrey4;
-  static const grey = CupertinoColors.systemGrey;
-  static const darkGrey = CupertinoColors.systemGrey2;
-  static const background = CupertinoColors.systemBackground;
-  static const secondaryBackground = CupertinoColors.secondarySystemBackground;
-  static const white = CupertinoColors.white;
-  static const black = CupertinoColors.black;
+  static const Color primary = Color(0xFFFFD700);
+  static const Color secondary = Color(0xFFFFF8DC);
+  static const Color accent = Color(0xFFFFB800);
+
+  static const Color black = Color(0xFF000000);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color grey = Color(0xFF9E9E9E);
+  static const Color lightGrey = Color(0xFFE0E0E0);
+  static const Color error = Color(0xFFE53935);
+  static const Color success = Color(0xFF43A047);
+
+  static const Color background = Color(0xFFFAFAFA);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color divider = Color(0xFFEEEEEE);
+
+  static const Color active = primary;
+  static const Color inactive = lightGrey;
+  static const Color disabled = grey;
+
+  static const Color textPrimary = black;
+  static const Color textSecondary = grey;
+  static const Color textDisabled = lightGrey;
+
+  static const Color buttonPrimary = primary;
+  static const Color buttonSecondary = secondary;
+  static const Color buttonDisabled = lightGrey;
 }

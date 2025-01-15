@@ -210,7 +210,7 @@ class _MyPageContent extends StatelessWidget {
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.secondaryBackground,
+            color: AppColors.secondary,
             borderRadius: BorderRadius.circular(8),
           ),
           child: child,

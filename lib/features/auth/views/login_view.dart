@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
+import '../../../core/widgets/loading_animation.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../app/routes.dart';
 
@@ -112,7 +113,7 @@ class _LoginViewState extends State<LoginView> {
               ],
               const SizedBox(height: 24),
               if (_isLoading)
-                const CupertinoActivityIndicator()
+                const HoneyLoadingAnimation(isStationSelected: false)
               else
                 CupertinoButton.filled(
                   onPressed: _login,

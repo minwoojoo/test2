@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
+import '../../../core/widgets/loading_animation.dart';
 import '../viewmodels/qr_scan_viewmodel.dart';
 import '../../../app/routes.dart';
 
@@ -50,7 +51,9 @@ class _QRScanContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (viewModel.isScanning) ...[
-                    const CupertinoActivityIndicator(radius: 20),
+                    const HoneyLoadingAnimation(
+                      isStationSelected: true,
+                    ),
                     const SizedBox(height: 24),
                     Text(
                       'QR 코드를 스캔하고 있습니다...',
@@ -58,7 +61,9 @@ class _QRScanContent extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ] else if (viewModel.isProcessing) ...[
-                    const CupertinoActivityIndicator(radius: 20),
+                    const HoneyLoadingAnimation(
+                      isStationSelected: true,
+                    ),
                     const SizedBox(height: 24),
                     Text(
                       'QR 코드를 처리하고 있습니다...',
