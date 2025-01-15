@@ -1,0 +1,48 @@
+import 'package:flutter/foundation.dart';
+import '../../../core/services/auth_service.dart';
+import '../../../data/models/user.dart';
+import '../../../data/repositories/user_repository.dart';
+
+class MyPageViewModel extends ChangeNotifier {
+  final _authService = AuthService.instance;
+  final _userRepository = UserRepository();
+
+  User? _user;
+  String? _error;
+  bool _isLoading = false;
+
+  User? get user => _user;
+  String? get error => _error;
+  bool get isLoading => _isLoading;
+
+  MyPageViewModel() {
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!_authService.isAuthenticated) {
+        _user = null;
+        _error = null;
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final userId = _authService.currentUser!.id;
+      final user = await _userRepository.get(userId);
+      _user = user;
+      _error = null;
+    } catch (e) {
+      _error = '사용자 정보를 불러오는데 실패했습니다.';
+      _user = null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}
