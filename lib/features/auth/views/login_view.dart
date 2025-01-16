@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/widgets/loading_animation.dart';
+import '../../../core/widgets/bottom_navigation_bar.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../app/routes.dart';
 
@@ -66,97 +68,105 @@ class _LoginViewState extends State<LoginView> {
         middle: Text('로그인'),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 32),
-              const Text(
-                'Bannabee',
-                style: AppTheme.headlineLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              CupertinoTextField(
-                controller: _emailController,
-                placeholder: '이메일',
-                keyboardType: TextInputType.emailAddress,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                autocorrect: false,
-              ),
-              const SizedBox(height: 16),
-              CupertinoTextField(
-                controller: _passwordController,
-                placeholder: '비밀번호',
-                obscureText: true,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                autocorrect: false,
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  _error!,
-                  style: AppTheme.bodyMedium.copyWith(
-                    color: AppColors.error,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-              const SizedBox(height: 24),
-              if (_isLoading)
-                const HoneyLoadingAnimation(isStationSelected: false)
-              else
-                CupertinoButton.filled(
-                  onPressed: _login,
-                  child: const Text('로그인'),
-                ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  CupertinoButton(
-                    onPressed: () {
-                      // TODO: 이메일 가입 페이지로 이동
-                    },
-                    child: const Text('이메일 가입'),
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Bannabee',
+                    style: AppTheme.headlineLarge,
+                    textAlign: TextAlign.center,
                   ),
-                  Container(
-                    width: 1,
-                    height: 12,
-                    color: AppColors.lightGrey,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                  const SizedBox(height: 48),
+                  CupertinoTextField(
+                    controller: _emailController,
+                    placeholder: '이메일',
+                    keyboardType: TextInputType.emailAddress,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.lightGrey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    autocorrect: false,
                   ),
-                  CupertinoButton(
-                    onPressed: () {
-                      // TODO: 이메일 찾기 페이지로 이동
-                    },
-                    child: const Text('이메일 찾기'),
+                  const SizedBox(height: 16),
+                  CupertinoTextField(
+                    controller: _passwordController,
+                    placeholder: '비밀번호',
+                    obscureText: true,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.lightGrey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    autocorrect: false,
                   ),
-                  Container(
-                    width: 1,
-                    height: 12,
-                    color: AppColors.lightGrey,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  CupertinoButton(
-                    onPressed: () {
-                      // TODO: 비밀번호 찾기 페이지로 이동
-                    },
-                    child: const Text('비밀번호 찾기'),
+                  if (_error != null) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      _error!,
+                      style: AppTheme.bodyMedium.copyWith(
+                        color: AppColors.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  if (_isLoading)
+                    const HoneyLoadingAnimation(isStationSelected: false)
+                  else
+                    CupertinoButton.filled(
+                      onPressed: _login,
+                      child: const Text('로그인'),
+                    ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CupertinoButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(Routes.terms);
+                        },
+                        child: const Text('이메일 가입'),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 12,
+                        color: AppColors.lightGrey,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          // TODO: 이메일 찾기 페이지로 이동
+                        },
+                        child: const Text('이메일 찾기'),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 12,
+                        color: AppColors.lightGrey,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          // TODO: 비밀번호 찾기 페이지로 이동
+                        },
+                        child: const Text('비밀번호 찾기'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: const AppBottomNavigationBar(currentIndex: 2),
+            ),
+          ],
         ),
       ),
     );

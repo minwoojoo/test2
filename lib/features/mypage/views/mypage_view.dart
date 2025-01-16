@@ -125,7 +125,8 @@ class _MyPageContent extends StatelessWidget {
                             CupertinoButton(
                               padding: EdgeInsets.zero,
                               onPressed: () {
-                                // TODO: 프로필 수정 화면으로 이동
+                                Navigator.of(context)
+                                    .pushNamed(Routes.editProfile);
                               },
                               child: const Icon(
                                 CupertinoIcons.pencil,
