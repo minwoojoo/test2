@@ -145,12 +145,12 @@ class RentalRepository implements BaseRepository<Rental> {
     ];
   }
 
-  Future<List<Rental>> getRecentRentals(String userId) async {
+  Future<List<Rental>> getRecentRentals([String? userId]) async {
     await Future.delayed(const Duration(seconds: 1));
     return [
       Rental(
         id: '2',
-        userId: userId,
+        userId: userId ?? 'test-user-id',
         accessoryId: '2',
         stationId: '1',
         startTime: DateTime.now().subtract(const Duration(days: 1)),

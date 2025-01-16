@@ -24,18 +24,23 @@ class _HoneyLoadingAnimationState extends State<HoneyLoadingAnimation>
     _honeyControllers = List.generate(
       3,
       (index) => AnimationController(
-        duration: const Duration(milliseconds: 500), // 깜빡이는 시간
+        duration: const Duration(milliseconds: 600), // 깜빡이는 시간
         vsync: this,
       ),
     );
 
-    // 순차적으로 깜빡이도록 딜레이 추가
-    for (int i = 0; i < _honeyControllers.length; i++) {
-      Future.delayed(Duration(milliseconds: i * 500), () {
-        if (mounted) {
-          _honeyControllers[i].repeat(reverse: true); // 반복적으로 깜빡임
-        }
-      });
+    // 순차적으로 애니메이션 실행
+    _startSequentialAnimations();
+  }
+
+  void _startSequentialAnimations() async {
+    while (mounted) {
+      for (int i = 0; i < _honeyControllers.length; i++) {
+        _honeyControllers[i].forward(from: 0).then((_) {
+          _honeyControllers[i].reverse();
+        });
+        await Future.delayed(const Duration(milliseconds: 700));
+      }
     }
   }
 

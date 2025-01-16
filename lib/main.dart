@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'app/routes.dart';
+import 'core/constants/app_colors.dart';
 import 'core/services/auth_service.dart';
 import 'data/models/rental.dart';
 import 'features/auth/views/login_view.dart';
@@ -28,7 +29,8 @@ class MyApp extends StatelessWidget {
     return CupertinoApp(
       title: 'Bannabee',
       theme: const CupertinoThemeData(
-        primaryColor: CupertinoColors.activeBlue,
+        // primaryColor: CupertinoColors.activeBlue,
+        primaryColor: AppColors.primary,
       ),
       initialRoute: Routes.home,
       routes: {

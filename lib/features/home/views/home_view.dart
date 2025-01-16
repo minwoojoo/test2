@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import '../viewmodels/home_viewmodel.dart';
+import '../../../core/widgets/bottom_navigation_bar.dart';
+import '../../../core/widgets/loading_animation.dart';
+import '../../../app/routes.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
-import '../../../core/widgets/loading_animation.dart';
-import '../viewmodels/home_viewmodel.dart';
-import '../../../data/models/rental.dart';
-import '../../../data/models/station.dart';
-import '../../../core/widgets/bottom_navigation_bar.dart';
-import '../../../app/routes.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -15,113 +13,135 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => HomeViewModel(),
-      child: const _HomeContent(),
-    );
-  }
-}
+      create: (_) => HomeViewModel(),
+      child: Column(
+        children: [
+          Expanded(
+            child: CupertinoPageScaffold(
+              navigationBar: const CupertinoNavigationBar(
+                middle: Text('Bannabee'),
+                automaticallyImplyLeading: false,
+              ),
+              child: SafeArea(
+                child: Consumer<HomeViewModel>(
+                  builder: (context, viewModel, child) {
+                    if (!viewModel.hasLocationPermission) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '위치 권한이 필요합니다',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              '주변 스테이션을 찾기 위해\n위치 권한이 필요합니다.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: CupertinoColors.systemGrey,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            CupertinoButton.filled(
+                              child: const Text('위치 권한 허용'),
+                              onPressed: () async {
+                                final hasPermission =
+                                    await viewModel.requestLocationPermission();
+                                if (!hasPermission) {
+                                  if (context.mounted) {
+                                    showCupertinoDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          CupertinoAlertDialog(
+                                        title: const Text('위치 권한 필요'),
+                                        content: const Text(
+                                          '주변 스테이션을 찾기 위해 위치 권한이 필요합니다.\n설정에서 위치 권한을 허용해주세요.',
+                                        ),
+                                        actions: [
+                                          CupertinoDialogAction(
+                                            child: const Text('취소'),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                          ),
+                                          CupertinoDialogAction(
+                                            isDefaultAction: true,
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              // TODO: 시스템 설정으로 이동
+                                            },
+                                            child: const Text('설정으로 이동'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
 
-class _HomeContent extends StatelessWidget {
-  const _HomeContent();
+                    if (viewModel.isLoading) {
+                      return const Center(
+                        child: HoneyLoadingAnimation(
+                          isStationSelected: false,
+                        ),
+                      );
+                    }
 
-  void _showLocationPermissionDialog(
-      BuildContext context, HomeViewModel viewModel) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('위치 권한이 필요합니다'),
-        content: const Text('주변 스테이션을 찾기 위해 위치 권한이 필요합니다.'),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('취소'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () {
-              Navigator.pop(context);
-              viewModel.requestLocationPermission();
-            },
-            child: const Text('허용'),
-          ),
-        ],
-      ),
-    );
-  }
+                    if (viewModel.error != null) {
+                      return Center(child: Text(viewModel.error!));
+                    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CupertinoPageScaffold(
-            navigationBar: const CupertinoNavigationBar(
-              middle: Text('Bannabee'),
-              automaticallyImplyLeading: false,
-            ),
-            child: SafeArea(
-              child: Consumer<HomeViewModel>(
-                builder: (context, viewModel, child) {
-                  if (viewModel.isLoading) {
-                    return const Center(
-                      child: HoneyLoadingAnimation(
-                        isStationSelected: false,
-                      ),
-                    );
-                  }
-                  if (viewModel.error != null) {
-                    return Center(child: Text(viewModel.error!));
-                  }
-
-                  if (!viewModel.hasLocationPermission &&
-                      !viewModel.hasShownPermissionDialog) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _showLocationPermissionDialog(context, viewModel);
-                      viewModel.setPermissionDialogShown();
-                    });
-                  }
-
-                  return CustomScrollView(
-                    slivers: [
-                      CupertinoSliverRefreshControl(
-                        onRefresh: viewModel.refresh,
-                      ),
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              _buildSearchBar(),
-                              const SizedBox(height: 16),
-                              _buildNoticeSection(context, viewModel),
-                            ],
+                    return CustomScrollView(
+                      slivers: [
+                        CupertinoSliverRefreshControl(
+                          onRefresh: viewModel.refresh,
+                        ),
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                _buildSearchBar(),
+                                const SizedBox(height: 16),
+                                _buildNoticeSection(context, viewModel),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      _buildActiveRentals(viewModel),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          height: 8,
-                          color: CupertinoColors.systemGrey6,
+                        _buildActiveRentals(viewModel),
+                        SliverToBoxAdapter(
+                          child: Container(
+                            height: 8,
+                            color: CupertinoColors.systemGrey6,
+                          ),
                         ),
-                      ),
-                      _buildRecentRentals(viewModel),
-                      SliverToBoxAdapter(
-                        child: Container(
-                          height: 8,
-                          color: CupertinoColors.systemGrey6,
+                        _buildRecentRentals(viewModel),
+                        SliverToBoxAdapter(
+                          child: Container(
+                            height: 8,
+                            color: CupertinoColors.systemGrey6,
+                          ),
                         ),
-                      ),
-                      _buildNearbyStations(context, viewModel),
-                    ],
-                  );
-                },
+                        _buildNearbyStations(context, viewModel),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
-        ),
-        const AppBottomNavigationBar(currentIndex: 0),
-      ],
+          const AppBottomNavigationBar(currentIndex: 0),
+        ],
+      ),
     );
   }
 
@@ -136,14 +156,14 @@ class _HomeContent extends StatelessWidget {
           color: CupertinoColors.systemGrey6,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(
+            Icon(
               CupertinoIcons.search,
               color: CupertinoColors.systemGrey,
               size: 20,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               '검색',
               style: TextStyle(
@@ -237,7 +257,7 @@ class _HomeContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '남은 시간: ${rental.remainingTime}',
+                      '남은 시간: ${rental.remainingTime.inHours}시간 ${rental.remainingTime.inMinutes % 60}분',
                       style: const TextStyle(
                         fontSize: 14,
                         color: CupertinoColors.systemGrey,
@@ -291,7 +311,7 @@ class _HomeContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '대여 시간: ${rental.startTime}',
+                      '대여 시간: ${rental.startTime.toString()}',
                       style: const TextStyle(
                         fontSize: 14,
                         color: CupertinoColors.systemGrey,

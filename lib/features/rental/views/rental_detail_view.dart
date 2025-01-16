@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import '../../../data/models/accessory.dart';
 import '../../../data/models/station.dart';
 import '../../../app/routes.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_theme.dart';
+import '../../station/views/station_selection_view.dart';
 
-class RentalDetailView extends StatelessWidget {
+class RentalDetailView extends StatefulWidget {
   final Accessory accessory;
   final Station? station;
 
@@ -12,6 +15,36 @@ class RentalDetailView extends StatelessWidget {
     required this.accessory,
     this.station,
   });
+
+  @override
+  State<RentalDetailView> createState() => _RentalDetailViewState();
+}
+
+class _RentalDetailViewState extends State<RentalDetailView> {
+  Station? _selectedStation;
+  int _selectedHours = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStation = widget.station;
+  }
+
+  Future<void> _selectStation() async {
+    final station = await Navigator.of(context).push<Station>(
+      CupertinoPageRoute(
+        builder: (context) => StationSelectionView(
+          currentStation: _selectedStation,
+        ),
+      ),
+    );
+
+    if (station != null) {
+      setState(() {
+        _selectedStation = station;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +66,7 @@ class RentalDetailView extends StatelessWidget {
                       child: Container(
                         color: CupertinoColors.systemGrey6,
                         child: Image.asset(
-                          accessory.imageUrl,
+                          widget.accessory.imageUrl,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -43,51 +76,62 @@ class RentalDetailView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 이름
+                          // 상품 정보
                           Text(
-                            accessory.name,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            widget.accessory.name,
+                            style: AppTheme.titleLarge,
                           ),
                           const SizedBox(height: 8),
-                          // 가격
                           Text(
-                            '${accessory.pricePerHour}원/시간',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: CupertinoColors.activeBlue,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            '${widget.accessory.pricePerHour}원/시간',
+                            style: AppTheme.titleMedium,
                           ),
                           const SizedBox(height: 16),
-                          // 설명
-                          const Text(
-                            '상세 설명',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          Text(
+                            widget.accessory.isAvailable ? '대여 가능' : '대여 불가',
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: widget.accessory.isAvailable
+                                  ? AppColors.primary
+                                  : AppColors.grey,
                             ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // 대여 시간 선택
+                          Text(
+                            '대여 시간',
+                            style: AppTheme.titleSmall,
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            accessory.description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: CupertinoColors.systemGrey,
+                          Container(
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.systemGrey6,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: CupertinoPicker(
+                              itemExtent: 32,
+                              onSelectedItemChanged: (index) {
+                                setState(() {
+                                  _selectedHours = index + 1;
+                                });
+                              },
+                              children: List.generate(24, (index) {
+                                return Center(
+                                  child: Text('${index + 1}시간'),
+                                );
+                              }),
                             ),
                           ),
-                          if (station != null) ...[
-                            const SizedBox(height: 24),
-                            const Text(
-                              '대여 위치',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
+                          const SizedBox(height: 24),
+
+                          // 스테이션 정보
+                          Text(
+                            '스테이션 정보',
+                            style: AppTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          if (_selectedStation != null)
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -105,18 +149,14 @@ class RentalDetailView extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          station!.name,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          _selectedStation!.name,
+                                          style: AppTheme.titleSmall,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          station!.address,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: CupertinoColors.systemGrey,
+                                          _selectedStation!.address,
+                                          style: AppTheme.bodySmall.copyWith(
+                                            color: AppColors.grey,
                                           ),
                                         ),
                                       ],
@@ -124,18 +164,29 @@ class RentalDetailView extends StatelessWidget {
                                   ),
                                   CupertinoButton(
                                     padding: EdgeInsets.zero,
-                                    onPressed: () {
-                                      Navigator.of(context).pushNamed(
-                                        Routes.map,
-                                        arguments: {'fromRental': true},
-                                      );
-                                    },
+                                    onPressed: _selectStation,
                                     child: const Text('변경'),
                                   ),
                                 ],
                               ),
+                            )
+                          else
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: CupertinoColors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: CupertinoColors.systemGrey5,
+                                ),
+                              ),
+                              child: CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: _selectStation,
+                                child: const Text('스테이션 선택'),
+                              ),
                             ),
-                          ],
                         ],
                       ),
                     ),
@@ -145,29 +196,36 @@ class RentalDetailView extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: CupertinoButton.filled(
-                  onPressed: () {
-                    if (station == null) {
-                      Navigator.of(context).pushNamed(
-                        Routes.rental,
-                        arguments: null,
-                      );
-                    } else {
-                      Navigator.of(context).pushNamed(
-                        Routes.payment,
-                        arguments: {
-                          'accessory': accessory,
-                          'station': station,
-                        },
-                      );
-                    }
-                  },
-                  child: Text(
-                    station == null ? '스테이션 선택' : '결제하기',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    '총 결제 금액: ${widget.accessory.pricePerHour * _selectedHours}원',
+                    style: AppTheme.titleMedium,
+                    textAlign: TextAlign.right,
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton.filled(
+                      onPressed: _selectedStation == null
+                          ? null
+                          : () {
+                              Navigator.of(context).pushNamed(
+                                Routes.payment,
+                                arguments: {
+                                  'accessory': widget.accessory,
+                                  'station': _selectedStation,
+                                  'hours': _selectedHours,
+                                },
+                              );
+                            },
+                      child: Text(
+                        _selectedStation == null ? '스테이션을 선택해주세요' : '결제하기',
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

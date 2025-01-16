@@ -150,7 +150,7 @@ class _RentalContent extends StatelessWidget {
                                             ),
                                             color: viewModel.selectedCategory ==
                                                     category
-                                                ? CupertinoColors.activeBlue
+                                                ? AppColors.primary
                                                 : CupertinoColors.systemGrey5,
                                             child: Text(
                                               _getCategoryName(category),
