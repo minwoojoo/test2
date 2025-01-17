@@ -86,7 +86,7 @@ class _HoneyLoadingAnimationState extends State<HoneyLoadingAnimation>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Image.asset(
-              'assets/images/bee.png', // 꿀벌 이미지
+              'assets/images/bannabee.png', // 꿀벌 이미지
               width: 40, // 크기 조정 가능
               height: 40, // 크기 조정 가능
             ),

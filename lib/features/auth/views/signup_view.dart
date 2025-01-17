@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/widgets/loading_animation.dart';
@@ -91,90 +92,97 @@ class _SignupViewState extends State<SignupView> {
         middle: Text('회원가입'),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 32),
-              const Text(
-                '반나비에 오신 것을\n환영합니다!',
-                style: AppTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              CupertinoTextField(
-                controller: _emailController,
-                placeholder: '이메일',
-                keyboardType: TextInputType.emailAddress,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              const SizedBox(height: 16),
-              CupertinoTextField(
-                controller: _passwordController,
-                placeholder: '비밀번호',
-                obscureText: true,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              const SizedBox(height: 16),
-              CupertinoTextField(
-                controller: _confirmPasswordController,
-                placeholder: '비밀번호 확인',
-                obscureText: true,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              const SizedBox(height: 16),
-              CupertinoTextField(
-                controller: _nameController,
-                placeholder: '이름',
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              const SizedBox(height: 16),
-              CupertinoTextField(
-                controller: _phoneController,
-                placeholder: '휴대폰 번호',
-                keyboardType: TextInputType.phone,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  _error!,
-                  style: AppTheme.bodyMedium.copyWith(
-                    color: AppColors.error,
-                  ),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontSize: 15,
+            color: Colors.black87,
+            height: 1.5,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 32),
+                const Text(
+                  '반나비에 오신 것을\n환영합니다!',
+                  style: AppTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
-              ],
-              const SizedBox(height: 32),
-              if (_isLoading)
-                const HoneyLoadingAnimation(isStationSelected: false)
-              else
-                CupertinoButton.filled(
-                  onPressed: _signup,
-                  child: const Text('회원가입'),
+                const SizedBox(height: 48),
+                CupertinoTextField(
+                  controller: _emailController,
+                  placeholder: '이메일',
+                  keyboardType: TextInputType.emailAddress,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-            ],
+                const SizedBox(height: 16),
+                CupertinoTextField(
+                  controller: _passwordController,
+                  placeholder: '비밀번호',
+                  obscureText: true,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CupertinoTextField(
+                  controller: _confirmPasswordController,
+                  placeholder: '비밀번호 확인',
+                  obscureText: true,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CupertinoTextField(
+                  controller: _nameController,
+                  placeholder: '이름',
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CupertinoTextField(
+                  controller: _phoneController,
+                  placeholder: '휴대폰 번호',
+                  keyboardType: TextInputType.phone,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.lightGrey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    _error!,
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppColors.error,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+                const SizedBox(height: 32),
+                if (_isLoading)
+                  const HoneyLoadingAnimation(isStationSelected: false)
+                else
+                  CupertinoButton.filled(
+                    onPressed: _signup,
+                    child: const Text('회원가입'),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

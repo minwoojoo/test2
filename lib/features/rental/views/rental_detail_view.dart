@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../data/models/accessory.dart';
 import '../../../data/models/station.dart';
 import '../../../app/routes.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_theme.dart';
 import '../../station/views/station_selection_view.dart';
 
 class RentalDetailView extends StatefulWidget {
@@ -32,7 +30,7 @@ class _RentalDetailViewState extends State<RentalDetailView> {
 
   Future<void> _selectStation() async {
     final station = await Navigator.of(context).push<Station>(
-      CupertinoPageRoute(
+      MaterialPageRoute(
         builder: (context) => StationSelectionView(
           currentStation: _selectedStation,
         ),
@@ -48,11 +46,11 @@ class _RentalDetailViewState extends State<RentalDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('상세 정보'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('상세 정보'),
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Column(
           children: [
             Expanded(
@@ -60,11 +58,10 @@ class _RentalDetailViewState extends State<RentalDetailView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // 이미지
                     AspectRatio(
                       aspectRatio: 1,
                       child: Container(
-                        color: CupertinoColors.systemGrey6,
+                        color: Colors.grey[200],
                         child: Image.asset(
                           widget.accessory.imageUrl,
                           fit: BoxFit.contain,
@@ -76,41 +73,38 @@ class _RentalDetailViewState extends State<RentalDetailView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 상품 정보
                           Text(
                             widget.accessory.name,
-                            style: AppTheme.titleLarge,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${widget.accessory.pricePerHour}원/시간',
-                            style: AppTheme.titleMedium,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             widget.accessory.isAvailable ? '대여 가능' : '대여 불가',
-                            style: AppTheme.bodyMedium.copyWith(
+                            style: TextStyle(
                               color: widget.accessory.isAvailable
-                                  ? AppColors.primary
-                                  : AppColors.grey,
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.grey,
                             ),
                           ),
                           const SizedBox(height: 24),
-
-                          // 대여 시간 선택
                           Text(
                             '대여 시간',
-                            style: AppTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
                           Container(
                             height: 100,
                             decoration: BoxDecoration(
-                              color: CupertinoColors.systemGrey6,
+                              color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: CupertinoPicker(
-                              itemExtent: 32,
+                            child: ListWheelScrollView(
+                              itemExtent: 40,
                               onSelectedItemChanged: (index) {
                                 setState(() {
                                   _selectedHours = index + 1;
@@ -124,21 +118,19 @@ class _RentalDetailViewState extends State<RentalDetailView> {
                             ),
                           ),
                           const SizedBox(height: 24),
-
-                          // 스테이션 정보
                           Text(
                             '스테이션 정보',
-                            style: AppTheme.titleSmall,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
                           if (_selectedStation != null)
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: CupertinoColors.white,
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: CupertinoColors.systemGrey5,
+                                  color: Colors.grey[300]!,
                                 ),
                               ),
                               child: Row(
@@ -150,20 +142,22 @@ class _RentalDetailViewState extends State<RentalDetailView> {
                                       children: [
                                         Text(
                                           _selectedStation!.name,
-                                          style: AppTheme.titleSmall,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleSmall,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           _selectedStation!.address,
-                                          style: AppTheme.bodySmall.copyWith(
-                                            color: AppColors.grey,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  CupertinoButton(
-                                    padding: EdgeInsets.zero,
+                                  TextButton(
                                     onPressed: _selectStation,
                                     child: const Text('변경'),
                                   ),
@@ -175,14 +169,13 @@ class _RentalDetailViewState extends State<RentalDetailView> {
                               width: double.infinity,
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: CupertinoColors.white,
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: CupertinoColors.systemGrey5,
+                                  color: Colors.grey[300]!,
                                 ),
                               ),
-                              child: CupertinoButton(
-                                padding: EdgeInsets.zero,
+                              child: TextButton(
                                 onPressed: _selectStation,
                                 child: const Text('스테이션 선택'),
                               ),
@@ -201,28 +194,25 @@ class _RentalDetailViewState extends State<RentalDetailView> {
                 children: [
                   Text(
                     '총 결제 금액: ${widget.accessory.pricePerHour * _selectedHours}원',
-                    style: AppTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium,
                     textAlign: TextAlign.right,
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CupertinoButton.filled(
-                      onPressed: _selectedStation == null
-                          ? null
-                          : () {
-                              Navigator.of(context).pushNamed(
-                                Routes.payment,
-                                arguments: {
-                                  'accessory': widget.accessory,
-                                  'station': _selectedStation,
-                                  'hours': _selectedHours,
-                                },
-                              );
-                            },
-                      child: Text(
-                        _selectedStation == null ? '스테이션을 선택해주세요' : '결제하기',
-                      ),
+                  ElevatedButton(
+                    onPressed: _selectedStation == null
+                        ? null
+                        : () {
+                            Navigator.of(context).pushNamed(
+                              Routes.payment,
+                              arguments: {
+                                'accessory': widget.accessory,
+                                'station': _selectedStation,
+                                'hours': _selectedHours,
+                              },
+                            );
+                          },
+                    child: Text(
+                      _selectedStation == null ? '스테이션을 선택해주세요' : '결제하기',
                     ),
                   ),
                 ],

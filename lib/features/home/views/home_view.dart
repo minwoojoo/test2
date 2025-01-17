@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../../../core/widgets/bottom_navigation_bar.dart';
 import '../../../core/widgets/loading_animation.dart';
 import '../../../app/routes.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_theme.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -17,12 +16,12 @@ class HomeView extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: CupertinoPageScaffold(
-              navigationBar: const CupertinoNavigationBar(
-                middle: Text('Bannabee'),
-                automaticallyImplyLeading: false,
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('Bannabee'),
+                centerTitle: true,
               ),
-              child: SafeArea(
+              body: SafeArea(
                 child: Consumer<HomeViewModel>(
                   builder: (context, viewModel, child) {
                     if (!viewModel.hasLocationPermission) {
@@ -43,33 +42,31 @@ class HomeView extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
-                                color: CupertinoColors.systemGrey,
+                                color: Colors.grey,
                               ),
                             ),
                             const SizedBox(height: 24),
-                            CupertinoButton.filled(
+                            ElevatedButton(
                               child: const Text('위치 권한 허용'),
                               onPressed: () async {
                                 final hasPermission =
                                     await viewModel.requestLocationPermission();
                                 if (!hasPermission) {
                                   if (context.mounted) {
-                                    showCupertinoDialog(
+                                    showDialog(
                                       context: context,
-                                      builder: (context) =>
-                                          CupertinoAlertDialog(
+                                      builder: (context) => AlertDialog(
                                         title: const Text('위치 권한 필요'),
                                         content: const Text(
                                           '주변 스테이션을 찾기 위해 위치 권한이 필요합니다.\n설정에서 위치 권한을 허용해주세요.',
                                         ),
                                         actions: [
-                                          CupertinoDialogAction(
+                                          TextButton(
                                             child: const Text('취소'),
                                             onPressed: () =>
                                                 Navigator.pop(context),
                                           ),
-                                          CupertinoDialogAction(
-                                            isDefaultAction: true,
+                                          TextButton(
                                             onPressed: () {
                                               Navigator.pop(context);
                                               // TODO: 시스템 설정으로 이동
@@ -100,39 +97,48 @@ class HomeView extends StatelessWidget {
                       return Center(child: Text(viewModel.error!));
                     }
 
-                    return CustomScrollView(
-                      slivers: [
-                        CupertinoSliverRefreshControl(
-                          onRefresh: viewModel.refresh,
-                        ),
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              children: [
-                                _buildSearchBar(),
-                                const SizedBox(height: 16),
-                                _buildNoticeSection(context, viewModel),
-                              ],
+                    return RefreshIndicator(
+                      onRefresh: viewModel.refresh,
+                      child: CustomScrollView(
+                        slivers: [
+                          const SliverPadding(
+                            padding: EdgeInsets.only(top: 8),
+                          ),
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: DefaultTextStyle.merge(
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.blue,
+                                ),
+                                child: Column(
+                                  children: [
+                                    _buildSearchBar(),
+                                    const SizedBox(height: 16),
+                                    _buildNoticeSection(context, viewModel),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        _buildActiveRentals(viewModel),
-                        SliverToBoxAdapter(
-                          child: Container(
-                            height: 8,
-                            color: CupertinoColors.systemGrey6,
+                          _buildActiveRentals(viewModel),
+                          SliverToBoxAdapter(
+                            child: Container(
+                              height: 8,
+                              color: Colors.grey[200],
+                            ),
                           ),
-                        ),
-                        _buildRecentRentals(viewModel),
-                        SliverToBoxAdapter(
-                          child: Container(
-                            height: 8,
-                            color: CupertinoColors.systemGrey6,
+                          _buildRecentRentals(viewModel),
+                          SliverToBoxAdapter(
+                            child: Container(
+                              height: 8,
+                              color: Colors.grey[200],
+                            ),
                           ),
-                        ),
-                        _buildNearbyStations(context, viewModel),
-                      ],
+                          _buildNearbyStations(context, viewModel),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -146,28 +152,28 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _buildSearchBar() {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         // TODO: 검색 화면으로 이동
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: CupertinoColors.systemGrey6,
+          color: Colors.grey[200],
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(
-              CupertinoIcons.search,
-              color: CupertinoColors.systemGrey,
+              Icons.search,
+              color: Colors.grey[600],
               size: 20,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               '검색',
               style: TextStyle(
-                color: CupertinoColors.systemGrey,
+                color: Colors.grey[600],
                 fontSize: 16,
               ),
             ),
@@ -178,21 +184,21 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _buildNoticeSection(BuildContext context, HomeViewModel viewModel) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
-        // TODO: 공지사항 목록으로 이동
+        Navigator.of(context).pushNamed(Routes.noticeList);
       },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: CupertinoColors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: CupertinoColors.systemGrey5),
+          border: Border.all(color: Colors.grey[300]!),
         ),
         child: Row(
           children: [
             const Icon(
-              CupertinoIcons.info_circle,
+              Icons.info_outline,
               color: AppColors.primary,
               size: 20,
             ),
@@ -205,9 +211,9 @@ class HomeView extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
-              CupertinoIcons.chevron_right,
-              color: CupertinoColors.systemGrey,
+            Icon(
+              Icons.chevron_right,
+              color: Colors.grey[600],
               size: 20,
             ),
           ],
@@ -237,10 +243,10 @@ class HomeView extends StatelessWidget {
         else
           ...viewModel.activeRentals.map((rental) => Container(
                 padding: const EdgeInsets.all(16.0),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: CupertinoColors.systemGrey5,
+                      color: Colors.grey[300]!,
                       width: 0.5,
                     ),
                   ),
@@ -258,9 +264,9 @@ class HomeView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '남은 시간: ${rental.remainingTime.inHours}시간 ${rental.remainingTime.inMinutes % 60}분',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: CupertinoColors.systemGrey,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
@@ -291,10 +297,10 @@ class HomeView extends StatelessWidget {
         else
           ...viewModel.recentRentals.map((rental) => Container(
                 padding: const EdgeInsets.all(16.0),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: CupertinoColors.systemGrey5,
+                      color: Colors.grey[300]!,
                       width: 0.5,
                     ),
                   ),
@@ -312,9 +318,9 @@ class HomeView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '대여 시간: ${rental.startTime.toString()}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: CupertinoColors.systemGrey,
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
@@ -343,7 +349,7 @@ class HomeView extends StatelessWidget {
             child: Text('주변에 스테이션이 없습니다.'),
           )
         else
-          ...viewModel.nearbyStations.map((station) => GestureDetector(
+          ...viewModel.nearbyStations.map((station) => InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed(
                     Routes.rental,
@@ -352,10 +358,10 @@ class HomeView extends StatelessWidget {
                 },
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: CupertinoColors.systemGrey5,
+                        color: Colors.grey[300]!,
                         width: 0.5,
                       ),
                     ),
@@ -373,9 +379,9 @@ class HomeView extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         station.address,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: CupertinoColors.systemGrey,
+                          color: Colors.grey[600],
                         ),
                       ),
                     ],

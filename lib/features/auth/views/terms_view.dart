@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../app/routes.dart';
@@ -39,74 +40,81 @@ class _TermsViewState extends State<TermsView> {
         middle: Text('이용약관'),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 32),
-              const Text(
-                '서비스 이용을 위해\n약관에 동의해주세요.',
-                style: AppTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
-              _buildCheckbox(
-                '전체 동의',
-                _isAllAgreed,
-                _onAllAgreeChanged,
-                isTitle: true,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                height: 1,
-                color: AppColors.lightGrey,
-              ),
-              const SizedBox(height: 16),
-              _buildCheckbox(
-                '[필수] 서비스 이용약관',
-                _isServiceAgreed,
-                (value) {
-                  if (value == null) return;
-                  setState(() {
-                    _isServiceAgreed = value;
-                    _updateAllAgreed();
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildCheckbox(
-                '[필수] 개인정보 처리방침',
-                _isPrivacyAgreed,
-                (value) {
-                  if (value == null) return;
-                  setState(() {
-                    _isPrivacyAgreed = value;
-                    _updateAllAgreed();
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildCheckbox(
-                '[선택] 마케팅 정보 수신 동의',
-                _isMarketingAgreed,
-                (value) {
-                  if (value == null) return;
-                  setState(() {
-                    _isMarketingAgreed = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 32),
-              CupertinoButton.filled(
-                onPressed: _isAllAgreed
-                    ? () {
-                        Navigator.of(context).pushNamed(Routes.signup);
-                      }
-                    : null,
-                child: const Text('다음'),
-              ),
-            ],
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontSize: 15,
+            color: Colors.black87,
+            height: 1.5,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 32),
+                const Text(
+                  '서비스 이용을 위해\n약관에 동의해주세요.',
+                  style: AppTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 48),
+                _buildCheckbox(
+                  '전체 동의',
+                  _isAllAgreed,
+                  _onAllAgreeChanged,
+                  isTitle: true,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  height: 1,
+                  color: AppColors.lightGrey,
+                ),
+                const SizedBox(height: 16),
+                _buildCheckbox(
+                  '[필수] 서비스 이용약관',
+                  _isServiceAgreed,
+                  (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _isServiceAgreed = value;
+                      _updateAllAgreed();
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildCheckbox(
+                  '[필수] 개인정보 처리방침',
+                  _isPrivacyAgreed,
+                  (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _isPrivacyAgreed = value;
+                      _updateAllAgreed();
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildCheckbox(
+                  '[선택] 마케팅 정보 수신 동의',
+                  _isMarketingAgreed,
+                  (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _isMarketingAgreed = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 32),
+                CupertinoButton.filled(
+                  onPressed: _isAllAgreed
+                      ? () {
+                          Navigator.of(context).pushNamed(Routes.signup);
+                        }
+                      : null,
+                  child: const Text('다음'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

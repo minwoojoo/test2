@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/services/auth_service.dart';
@@ -68,9 +69,11 @@ class _MyPageContent extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             '로그인이 필요합니다.',
-                            style: AppTheme.bodyMedium,
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
@@ -85,106 +88,115 @@ class _MyPageContent extends StatelessWidget {
                     );
                   }
 
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(user.profileImageUrl),
-                                  fit: BoxFit.cover,
+                  return DefaultTextStyle.merge(
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: NetworkImage(user.profileImageUrl),
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.name,
-                                    style: AppTheme.titleLarge,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    user.email,
-                                    style: AppTheme.bodyMedium.copyWith(
-                                      color: AppColors.grey,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      user.name,
+                                      style: AppTheme.titleLarge,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      user.email,
+                                      style: AppTheme.bodyMedium.copyWith(
+                                        color: AppColors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            CupertinoButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed(Routes.editProfile);
+                                },
+                                child: const Icon(
+                                  CupertinoIcons.pencil,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          _buildSection(
+                            title: '대여 현황',
+                            child: user.rentals.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Text(
+                                        '대여 중인 물품이 없습니다.',
+                                        style: AppTheme.bodyMedium,
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    children: user.rentals
+                                        .map((rental) =>
+                                            _buildRentalItem(rental))
+                                        .toList(),
+                                  ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildSection(
+                            title: '최근 이용 내역',
+                            child: user.rentals.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Text(
+                                        '최근 이용 내역이 없습니다.',
+                                        style: AppTheme.bodyMedium,
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    children: user.rentals
+                                        .map((rental) =>
+                                            _buildRentalItem(rental))
+                                        .toList(),
+                                  ),
+                          ),
+                          const SizedBox(height: 32),
+                          CupertinoButton(
+                            onPressed: () async {
+                              await AuthService.instance.signOut();
+                              if (context.mounted) {
                                 Navigator.of(context)
-                                    .pushNamed(Routes.editProfile);
-                              },
-                              child: const Icon(
-                                CupertinoIcons.pencil,
-                                color: AppColors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        _buildSection(
-                          title: '대여 현황',
-                          child: user.rentals.isEmpty
-                              ? const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text(
-                                      '대여 중인 물품이 없습니다.',
-                                      style: AppTheme.bodyMedium,
-                                    ),
-                                  ),
-                                )
-                              : Column(
-                                  children: user.rentals
-                                      .map((rental) => _buildRentalItem(rental))
-                                      .toList(),
-                                ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildSection(
-                          title: '최근 이용 내역',
-                          child: user.rentals.isEmpty
-                              ? const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Text(
-                                      '최근 이용 내역이 없습니다.',
-                                      style: AppTheme.bodyMedium,
-                                    ),
-                                  ),
-                                )
-                              : Column(
-                                  children: user.rentals
-                                      .map((rental) => _buildRentalItem(rental))
-                                      .toList(),
-                                ),
-                        ),
-                        const SizedBox(height: 32),
-                        CupertinoButton(
-                          onPressed: () async {
-                            await AuthService.instance.signOut();
-                            if (context.mounted) {
-                              Navigator.of(context)
-                                  .pushReplacementNamed(Routes.login);
-                            }
-                          },
-                          child: const Text('로그아웃'),
-                        ),
-                      ],
+                                    .pushReplacementNamed(Routes.login);
+                              }
+                            },
+                            child: const Text('로그아웃'),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

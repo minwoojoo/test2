@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../app/routes.dart';
 
 class AppBottomNavigationBar extends StatelessWidget {
@@ -11,7 +11,7 @@ class AppBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabBar(
+    return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: (index) {
         if (index == currentIndex) return;
@@ -30,15 +30,15 @@ class AppBottomNavigationBar extends StatelessWidget {
       },
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.home),
+          icon: Icon(Icons.home),
           label: '홈',
         ),
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.cube_box),
+          icon: Icon(Icons.inventory_2),
           label: '대여',
         ),
         BottomNavigationBarItem(
-          icon: Icon(CupertinoIcons.person),
+          icon: Icon(Icons.person),
           label: '마이페이지',
         ),
       ],
