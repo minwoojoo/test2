@@ -100,4 +100,16 @@ class Rental {
     if (now.isAfter(endTime)) return Duration.zero;
     return endTime.difference(now);
   }
+
+  String get formattedStartTime {
+    return '${startTime.year}-${startTime.month.toString().padLeft(2, '0')}-${startTime.day.toString().padLeft(2, '0')} ${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}:${startTime.second.toString().padLeft(2, '0')}';
+  }
+
+  String get formattedEndTime {
+    return '${endTime.year}-${endTime.month.toString().padLeft(2, '0')}-${endTime.day.toString().padLeft(2, '0')} ${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}:${endTime.second.toString().padLeft(2, '0')}';
+  }
+
+  String get formattedTimeRange {
+    return '$formattedStartTime ~ $formattedEndTime';
+  }
 }

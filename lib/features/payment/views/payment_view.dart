@@ -1,216 +1,209 @@
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_theme.dart';
+import 'package:flutter/material.dart';
 import '../../../data/models/rental.dart';
-import '../viewmodels/payment_viewmodel.dart';
 import '../../../app/routes.dart';
+import '../../../core/constants/app_theme.dart';
+import '../../../core/services/auth_service.dart';
 
-class PaymentView extends StatelessWidget {
-  final Rental rental;
+class PaymentView extends StatefulWidget {
+  final Map<String, dynamic> rentalInfo;
 
   const PaymentView({
     super.key,
-    required this.rental,
+    required this.rentalInfo,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => PaymentViewModel(rental: rental),
-      child: const _PaymentContent(),
-    );
-  }
+  State<PaymentView> createState() => _PaymentViewState();
 }
 
-class _PaymentContent extends StatelessWidget {
-  const _PaymentContent();
+class _PaymentViewState extends State<PaymentView> {
+  bool _isAgreed = false;
+  String _selectedPaymentMethod = '신용카드';
 
   @override
   Widget build(BuildContext context) {
+    final accessory = widget.rentalInfo['accessory'];
+    final station = widget.rentalInfo['station'];
+    final hours = widget.rentalInfo['hours'] as int;
+    final totalPrice = accessory.pricePerHour * hours;
+
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('결제하기'),
       ),
       child: SafeArea(
-        child: Consumer<PaymentViewModel>(
-          builder: (context, viewModel, _) {
-            if (viewModel.isComplete) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacementNamed(
-                  Routes.paymentComplete,
-                  arguments: viewModel.rental,
-                );
-              });
-            }
-
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildOrderInfo(viewModel),
-                        const SizedBox(height: 24),
-                        _buildPaymentMethods(viewModel),
-                        const SizedBox(height: 24),
-                        _buildAgreement(),
-                      ],
-                    ),
-                  ),
-                ),
-                _buildBottomPayment(context, viewModel),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrderInfo(PaymentViewModel viewModel) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('상품 정보', style: AppTheme.titleMedium),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.lightGrey),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontSize: 15,
+            color: Colors.black87,
+            height: 1.5,
           ),
           child: Column(
             children: [
-              _buildInfoRow('대여 ID', viewModel.rental.id),
-              const SizedBox(height: 8),
-              _buildInfoRow('대여 시간',
-                  '${viewModel.rental.startTime} ~ ${viewModel.rental.endTime}'),
-              const SizedBox(height: 8),
-              _buildInfoRow('결제 금액', '${viewModel.rental.totalPrice}원'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPaymentMethods(PaymentViewModel viewModel) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('결제 수단', style: AppTheme.titleMedium),
-        const SizedBox(height: 16),
-        ...PaymentMethod.values.map((method) {
-          final isSelected = method == viewModel.selectedMethod;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => viewModel.selectPaymentMethod(method),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: isSelected ? AppColors.primary : AppColors.lightGrey,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildSection(
+                        title: '상품 정보',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('스테이션: ${station.name}'),
+                            const SizedBox(height: 8),
+                            Text('상품: ${accessory.name}'),
+                            const SizedBox(height: 8),
+                            Text('대여 시간: $hours시간'),
+                            const SizedBox(height: 8),
+                            Text('가격: ${totalPrice}원'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSection(
+                        title: '결제 수단',
+                        child: Column(
+                          children: [
+                            _buildPaymentMethodTile('신용카드'),
+                            _buildPaymentMethodTile('카카오페이'),
+                            _buildPaymentMethodTile('네이버페이'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSection(
+                        title: '약관 동의',
+                        child: Row(
+                          children: [
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                setState(() {
+                                  _isAgreed = !_isAgreed;
+                                });
+                              },
+                              child: Icon(
+                                _isAgreed
+                                    ? CupertinoIcons.checkmark_square_fill
+                                    : CupertinoIcons.square,
+                                color: _isAgreed
+                                    ? CupertinoColors.activeBlue
+                                    : CupertinoColors.systemGrey,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text('결제 진행 및 대여 약관에 동의합니다'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      isSelected
-                          ? CupertinoIcons.checkmark_circle_fill
-                          : CupertinoIcons.circle,
-                      color: isSelected ? AppColors.primary : AppColors.grey,
-                    ),
-                    const SizedBox(width: 16),
                     Text(
-                      viewModel.getPaymentMethodName(method),
-                      style: AppTheme.bodyMedium,
+                      '총 결제 금액: ${totalPrice}원',
+                      style: AppTheme.titleMedium,
+                      textAlign: TextAlign.right,
+                    ),
+                    const SizedBox(height: 8),
+                    CupertinoButton.filled(
+                      onPressed: _isAgreed
+                          ? () {
+                              final rental = Rental(
+                                id: 'R${DateTime.now().millisecondsSinceEpoch}',
+                                userId:
+                                    AuthService.instance.currentUser?.id ?? '',
+                                accessoryId: accessory.id,
+                                stationId: station.id,
+                                startTime: DateTime.now(),
+                                endTime: DateTime.now().add(
+                                  Duration(hours: hours),
+                                ),
+                                totalPrice: totalPrice,
+                                status: RentalStatus.active,
+                                createdAt: DateTime.now(),
+                                updatedAt: DateTime.now(),
+                              );
+                              Navigator.of(context).pushReplacementNamed(
+                                Routes.paymentComplete,
+                                arguments: rental,
+                              );
+                            }
+                          : null,
+                      child: const Text('결제하기'),
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        }).toList(),
-      ],
-    );
-  }
-
-  Widget _buildAgreement() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('결제 동의', style: AppTheme.titleMedium),
-        const SizedBox(height: 16),
-        Text(
-          '위 내용을 확인하였으며, 결제에 동의합니다.',
-          style: AppTheme.bodyMedium.copyWith(color: AppColors.grey),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomPayment(BuildContext context, PaymentViewModel viewModel) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(
-          top: BorderSide(color: AppColors.lightGrey),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('총 결제 금액', style: AppTheme.titleMedium),
-              Text(
-                '${viewModel.rental.totalPrice}원',
-                style: AppTheme.titleMedium.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: CupertinoButton(
-              color: AppColors.primary,
-              onPressed: viewModel.isProcessing
-                  ? null
-                  : () => viewModel.processPayment(context),
-              child: viewModel.isProcessing
-                  ? const CupertinoActivityIndicator()
-                  : const Text(
-                      '결제하기',
-                      style: TextStyle(color: AppColors.black),
-                    ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          label,
-          style: AppTheme.bodyMedium.copyWith(color: AppColors.grey),
+          title,
+          style: AppTheme.titleMedium,
         ),
-        Text(value, style: AppTheme.bodyMedium),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: CupertinoColors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: CupertinoColors.systemGrey5,
+            ),
+          ),
+          child: child,
+        ),
       ],
+    );
+  }
+
+  Widget _buildPaymentMethodTile(String method) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: () {
+        setState(() {
+          _selectedPaymentMethod = method;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              _selectedPaymentMethod == method
+                  ? CupertinoIcons.circle_fill
+                  : CupertinoIcons.circle,
+              color: _selectedPaymentMethod == method
+                  ? CupertinoColors.activeBlue
+                  : CupertinoColors.systemGrey,
+            ),
+            const SizedBox(width: 8),
+            Text(method),
+          ],
+        ),
+      ),
     );
   }
 }

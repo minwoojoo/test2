@@ -30,7 +30,7 @@ class HomeViewModel extends ChangeNotifier {
     NoticeRepository? noticeRepository,
     LocationService? locationService,
     AuthService? authService,
-  })  : _stationRepository = stationRepository ?? StationRepository(),
+  })  : _stationRepository = stationRepository ?? StationRepository.instance,
         _rentalRepository = rentalRepository ?? RentalRepository(),
         _noticeRepository = noticeRepository ?? NoticeRepository(),
         _locationService = locationService ?? LocationService.instance,
@@ -89,11 +89,7 @@ class HomeViewModel extends ChangeNotifier {
     try {
       final position = await _locationService.getCurrentLocation();
       if (position != null) {
-        _nearbyStations = await _stationRepository.getNearbyStations(
-          position.latitude,
-          position.longitude,
-          radius: 5.0, // 5km 반경
-        );
+        _nearbyStations = await _stationRepository.getNearbyStations();
       }
     } catch (e) {
       print('Failed to load nearby stations: $e');

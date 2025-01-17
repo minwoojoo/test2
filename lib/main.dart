@@ -17,6 +17,7 @@ import 'features/notice/views/notice_list_view.dart';
 import 'features/payment/views/payment_complete_view.dart';
 import 'features/payment/views/payment_view.dart';
 import 'features/rental/views/rental_view.dart';
+import 'features/rental/views/rental_status_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,8 +70,10 @@ class MyApp extends StatelessWidget {
         Routes.home: (context) => const HomeView(),
         Routes.map: (context) => const MapView(),
         Routes.rental: (context) => const RentalView(),
+        Routes.rentalStatus: (context) => const RentalStatusView(),
         Routes.payment: (context) => PaymentView(
-              rental: ModalRoute.of(context)!.settings.arguments as Rental,
+              rentalInfo: ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>,
             ),
         Routes.paymentComplete: (context) => PaymentCompleteView(
               rental: ModalRoute.of(context)!.settings.arguments as Rental,

@@ -21,7 +21,7 @@ class RentalViewModel extends ChangeNotifier {
     StationRepository? stationRepository,
     Station? initialStation,
   })  : _accessoryRepository = accessoryRepository ?? AccessoryRepository(),
-        _stationRepository = stationRepository ?? StationRepository(),
+        _stationRepository = stationRepository ?? StationRepository.instance,
         _selectedStation = initialStation {
     loadAccessories();
     if (initialStation == null) {
@@ -63,8 +63,7 @@ class RentalViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 실제로는 현재 위치를 기반으로 주변 스테이션을 로드해야 함
-      _nearbyStations = await _stationRepository.getAll();
+      _nearbyStations = await _stationRepository.getNearbyStations();
     } catch (e) {
       _error = e.toString();
     } finally {

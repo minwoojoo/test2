@@ -18,7 +18,7 @@ class MapViewModel with ChangeNotifier {
   MapViewModel({
     StationRepository? stationRepository,
     LocationService? locationService,
-  })  : _stationRepository = stationRepository ?? StationRepository(),
+  })  : _stationRepository = stationRepository ?? StationRepository.instance,
         _locationService = locationService ?? LocationService.instance;
 
   Set<Marker> get markers => _markers;
@@ -55,11 +55,7 @@ class MapViewModel with ChangeNotifier {
     if (_currentPosition == null) return;
 
     try {
-      final stations = await _stationRepository.getNearbyStations(
-        _currentPosition!.latitude,
-        _currentPosition!.longitude,
-        radius: 5.0, // 5km 반경
-      );
+      final stations = await _stationRepository.getNearbyStations();
 
       _markers = stations.map((station) {
         return Marker(

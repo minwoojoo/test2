@@ -20,6 +20,7 @@ class HomeView extends StatelessWidget {
               appBar: AppBar(
                 title: const Text('Bannabee'),
                 centerTitle: true,
+                automaticallyImplyLeading: false,
               ),
               body: SafeArea(
                 child: Consumer<HomeViewModel>(
@@ -121,6 +122,36 @@ class HomeView extends StatelessWidget {
                                 ),
                               ),
                             ),
+                          ),
+                          SliverList(
+                            delegate: SliverChildListDelegate([
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context)
+                                        .pushNamed(Routes.rentalStatus);
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        '현재 대여 중',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.chevron_right,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ]),
                           ),
                           _buildActiveRentals(viewModel),
                           SliverToBoxAdapter(

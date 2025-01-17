@@ -16,7 +16,7 @@ class StationSelectionViewModel extends ChangeNotifier {
   StationSelectionViewModel({
     StationRepository? stationRepository,
     this.currentStation,
-  }) : _stationRepository = stationRepository ?? StationRepository() {
+  }) : _stationRepository = stationRepository ?? StationRepository.instance {
     loadStations();
   }
 
@@ -30,7 +30,7 @@ class StationSelectionViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _stations = await _stationRepository.getAll();
+      _stations = await _stationRepository.getNearbyStations();
       _applySearch();
     } catch (e) {
       _error = e.toString();
