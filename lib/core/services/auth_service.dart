@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import '../../data/models/user.dart';
 import '../services/storage_service.dart';
 
@@ -8,56 +9,53 @@ class AuthService {
     await instance._init();
   }
 
+  final fb_auth.FirebaseAuth _firebaseAuth = fb_auth.FirebaseAuth.instance;
   User? _currentUser;
+
   User? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
 
   Future<void> _init() async {
     await StorageService.instance.init();
-    final userData = StorageService.instance.getObject('user');
-    if (userData != null) {
-      _currentUser = User.fromJson(userData);
+    final fbUser = _firebaseAuth.currentUser;
+    if (fbUser != null) {
+      _currentUser = User(
+        id: fbUser.uid,
+        email: fbUser.email ?? '',
+        name: fbUser.displayName ?? '사용자',
+        phoneNumber: fbUser.phoneNumber ?? '',
+        profileImageUrl: '', // 프로필 이미지 URL은 별도로 관리 필요
+        createdAt: DateTime.now(), // Firebase에 저장된 시간으로 업데이트 가능
+        updatedAt: DateTime.now(),
+        rentals: [],
+      );
     }
   }
 
   Future<void> signInWithEmail(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 1));
-    if (email == 'test@test.com' && password == 'test1234') {
-      _currentUser = User(
-        id: 'test-user-id',
+    try {
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
-        name: '테스트 사용자',
-        phoneNumber: '010-1234-5678',
-        profileImageUrl: 'https://example.com/images/profile.jpg',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        rentals: [],
+        password: password,
       );
-      await StorageService.instance.setObject('user', _currentUser!.toJson());
-    } else {
-      throw Exception('이메일 또는 비밀번호가 올바르지 않습니다.');
+
+      final fbUser = credential.user;
+      if (fbUser != null) {
+        _currentUser = User(
+          id: fbUser.uid,
+          email: fbUser.email ?? '',
+          name: fbUser.displayName ?? '사용자',
+          phoneNumber: fbUser.phoneNumber ?? '',
+          profileImageUrl: '', // 프로필 이미지 URL 추가 가능
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          rentals: [],
+        );
+        await StorageService.instance.setObject('user', _currentUser!.toJson());
+      }
+    } catch (e) {
+      throw Exception('로그인 실패: ${e.toString()}');
     }
-  }
-
-  Future<void> signInWithTestUser() async {
-    await Future.delayed(const Duration(seconds: 1));
-    _currentUser = User(
-      id: 'test-user-id',
-      email: 'test@test.com',
-      name: '테스트 사용자',
-      phoneNumber: '010-1234-5678',
-      profileImageUrl: 'https://example.com/images/profile.jpg',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      rentals: [],
-    );
-    await StorageService.instance.setObject('user', _currentUser!.toJson());
-  }
-
-  Future<void> signOut() async {
-    await Future.delayed(const Duration(seconds: 1));
-    _currentUser = null;
-    await StorageService.instance.remove('user');
   }
 
   Future<void> signUp({
@@ -66,17 +64,41 @@ class AuthService {
     required String password,
     required String phoneNumber,
   }) async {
-    await Future.delayed(const Duration(seconds: 1));
-    _currentUser = User(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      email: email,
-      name: name,
-      phoneNumber: phoneNumber,
-      profileImageUrl: 'https://example.com/images/profile.jpg',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      rentals: [],
-    );
-    await StorageService.instance.setObject('user', _currentUser!.toJson());
+    try {
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final fbUser = credential.user;
+      if (fbUser != null) {
+        // 사용자 이름 업데이트
+        await fbUser.updateDisplayName(name);
+
+        _currentUser = User(
+          id: fbUser.uid,
+          email: fbUser.email ?? '',
+          name: name,
+          phoneNumber: phoneNumber,
+          profileImageUrl: '', // 프로필 이미지 URL 추가 가능
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          rentals: [],
+        );
+        await StorageService.instance.setObject('user', _currentUser!.toJson());
+      }
+    } catch (e) {
+      throw Exception('회원가입 실패: ${e.toString()}');
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      await _firebaseAuth.signOut();
+      _currentUser = null;
+      await StorageService.instance.remove('user');
+    } catch (e) {
+      throw Exception('로그아웃 실패: ${e.toString()}');
+    }
   }
 }
