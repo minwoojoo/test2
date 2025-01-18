@@ -125,10 +125,6 @@ class _PaymentViewState extends State<PaymentView> {
                                     AuthService.instance.currentUser?.id ?? '',
                                 accessoryId: accessory.id,
                                 stationId: station.id,
-                                startTime: DateTime.now(),
-                                endTime: DateTime.now().add(
-                                  Duration(hours: hours),
-                                ),
                                 totalPrice: totalPrice,
                                 status: RentalStatus.active,
                                 createdAt: DateTime.now(),

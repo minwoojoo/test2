@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/rental_status_viewmodel.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/widgets/loading_animation.dart';
-import './rental_return_view.dart';
+// import './rental_return_view.dart';
 import './qr_scan_view.dart';
 
 class RentalStatusView extends StatelessWidget {
@@ -76,17 +76,17 @@ class _RentalStatusContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                rental.accessoryId,
+                                rental.accessoryName,
                                 style: AppTheme.titleMedium,
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                rental.stationId,
+                                rental.stationName,
                                 style: AppTheme.bodyMedium,
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                rental.formattedTimeRange,
+                                rental.formattedRentalTime,
                                 style: AppTheme.bodyMedium,
                               ),
                               const SizedBox(height: 8),

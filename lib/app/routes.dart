@@ -5,6 +5,7 @@ class Routes {
   static const String map = '/map';
   static const String rental = '/rental';
   static const String rentalDetail = '/rental/detail';
+  static const String rentalHistory = '/rental/history';
   static const String qrScan = '/qr-scan';
   static const String payment = '/payment';
   static const String paymentComplete = '/payment/complete';

@@ -1,284 +1,258 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/widgets/bottom_navigation_bar.dart';
 import '../../../app/routes.dart';
-import '../viewmodels/mypage_viewmodel.dart';
-import 'package:provider/provider.dart';
 
 class MyPageView extends StatelessWidget {
   const MyPageView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyPageViewModel(),
-      child: const _MyPageContent(),
-    );
-  }
-}
+    final user = AuthService.instance.currentUser;
 
-class _MyPageContent extends StatelessWidget {
-  const _MyPageContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CupertinoPageScaffold(
-            navigationBar: const CupertinoNavigationBar(
-              middle: Text('마이페이지'),
-            ),
-            child: SafeArea(
-              child: Consumer<MyPageViewModel>(
-                builder: (context, viewModel, child) {
-                  if (viewModel.isLoading) {
-                    return const Center(
-                      child: CupertinoActivityIndicator(),
-                    );
-                  }
-
-                  if (viewModel.error != null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            viewModel.error!,
-                            style: AppTheme.bodyMedium.copyWith(
-                              color: AppColors.error,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          CupertinoButton(
-                            onPressed: viewModel.loadUser,
-                            child: const Text('다시 시도'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final user = viewModel.user;
-                  if (user == null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '로그인이 필요합니다.',
-                            style: AppTheme.bodyMedium.copyWith(
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          CupertinoButton.filled(
-                            onPressed: () {
-                              Navigator.of(context).pushNamed(Routes.login);
-                            },
-                            child: const Text('로그인'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return DefaultTextStyle.merge(
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(user.profileImageUrl),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      user.name,
-                                      style: AppTheme.titleLarge,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      user.email,
-                                      style: AppTheme.bodyMedium.copyWith(
-                                        color: AppColors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamed(Routes.editProfile);
-                                },
-                                child: const Icon(
-                                  CupertinoIcons.pencil,
-                                  color: AppColors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 32),
-                          _buildSection(
-                            title: '대여 현황',
-                            child: user.rentals.isEmpty
-                                ? const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: Text(
-                                        '대여 중인 물품이 없습니다.',
-                                        style: AppTheme.bodyMedium,
-                                      ),
-                                    ),
-                                  )
-                                : Column(
-                                    children: user.rentals
-                                        .map((rental) =>
-                                            _buildRentalItem(rental))
-                                        .toList(),
-                                  ),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildSection(
-                            title: '최근 이용 내역',
-                            child: user.rentals.isEmpty
-                                ? const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: Text(
-                                        '최근 이용 내역이 없습니다.',
-                                        style: AppTheme.bodyMedium,
-                                      ),
-                                    ),
-                                  )
-                                : Column(
-                                    children: user.rentals
-                                        .map((rental) =>
-                                            _buildRentalItem(rental))
-                                        .toList(),
-                                  ),
-                          ),
-                          const SizedBox(height: 32),
-                          CupertinoButton(
-                            onPressed: () async {
-                              await AuthService.instance.signOut();
-                              if (context.mounted) {
-                                Navigator.of(context)
-                                    .pushReplacementNamed(Routes.login);
-                              }
-                            },
-                            child: const Text('로그아웃'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-        const AppBottomNavigationBar(currentIndex: 2),
-      ],
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required Widget child,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          title,
-          style: AppTheme.titleMedium,
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.secondary,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: child,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRentalItem(dynamic rental) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.lightGrey,
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('마이페이지'),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  rental.accessoryId, // TODO: 실제 액세서리 이름으로 변경
-                  style: AppTheme.titleSmall,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. 회원 정보 필드
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  rental.stationId, // TODO: 실제 스테이션 이름으로 변경
-                  style: AppTheme.bodySmall.copyWith(
-                    color: AppColors.grey,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/profile.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${user?.name}님',
+                            style: AppTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            user?.email ?? '',
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(Routes.editProfile);
+                      },
+                      child: const Text('회원정보 수정'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 2. My 필드
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(Routes.rentalHistory);
+                        },
+                        icon: const Icon(Icons.history),
+                        label: const Text('이용 내역'),
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 24,
+                      color: Colors.grey[300],
+                    ),
+                    Expanded(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          // TODO: 결제 수단 관리 페이지로 이동
+                        },
+                        icon: const Icon(Icons.payment),
+                        label: const Text('결제 수단 관리'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 3. 고객지원 필드
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '고객지원',
+                      style: AppTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _buildSupportButton(
+                          '이용 약관',
+                          Icons.description,
+                          onPressed: () {
+                            // TODO: 이용 약관 페이지로 이동
+                          },
+                        ),
+                        _buildSupportButton(
+                          '개인정보 처리방침',
+                          Icons.security,
+                          onPressed: () {
+                            // TODO: 개인정보 처리방침 페이지로 이동
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _buildSupportButton(
+                          '공지사항',
+                          Icons.notifications,
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(Routes.noticeList);
+                          },
+                        ),
+                        _buildSupportButton(
+                          '자주 묻는 질문',
+                          Icons.help,
+                          onPressed: () {
+                            // TODO: FAQ 페이지로 이동
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _buildSupportButton(
+                          '전화문의',
+                          Icons.phone,
+                          onPressed: () {
+                            // TODO: 전화문의 기능 구현
+                          },
+                        ),
+                        _buildSupportButton(
+                          '1:1 채팅상담',
+                          Icons.chat,
+                          onPressed: () {
+                            // TODO: 채팅상담 페이지로 이동
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 4. 베너 광고
+              Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Text(
+                    '광고 영역',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${rental.totalPrice}원',
-                style: AppTheme.titleSmall,
               ),
-              const SizedBox(height: 4),
-              Text(
-                rental.status.toString(), // TODO: 상태 텍스트로 변경
-                style: AppTheme.bodySmall.copyWith(
-                  color: AppColors.grey,
+              const SizedBox(height: 16),
+
+              // 5. 로그아웃 버튼
+              ElevatedButton(
+                onPressed: () async {
+                  await AuthService.instance.signOut();
+                  if (context.mounted) {
+                    Navigator.of(context).pushReplacementNamed(Routes.login);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.error,
                 ),
+                child: const Text('로그아웃'),
               ),
             ],
           ),
-        ],
+        ),
+      ),
+      bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 2),
+    );
+  }
+
+  Widget _buildSupportButton(
+    String label,
+    IconData icon, {
+    required VoidCallback onPressed,
+  }) {
+    return Expanded(
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+        ),
+        child: Column(
+          children: [
+            Icon(icon),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: AppTheme.bodySmall,
+            ),
+          ],
+        ),
       ),
     );
   }

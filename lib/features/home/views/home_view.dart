@@ -5,6 +5,7 @@ import '../../../core/widgets/bottom_navigation_bar.dart';
 import '../../../core/widgets/loading_animation.dart';
 import '../../../app/routes.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/models/rental.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -132,33 +133,79 @@ class HomeView extends StatelessWidget {
                                     Navigator.of(context)
                                         .pushNamed(Routes.rentalStatus);
                                   },
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        '현재 대여 중',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.grey[300]!,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text(
+                                              '현재 대여 중',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.refresh),
+                                              onPressed: viewModel.refresh,
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      Icon(
-                                        Icons.chevron_right,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ],
+                                        if (viewModel.activeRentals.isEmpty)
+                                          const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 16.0,
+                                            ),
+                                            child: Text('현재 대여 중인 물품이 없습니다.'),
+                                          )
+                                        else
+                                          ...viewModel.activeRentals.map(
+                                            (rental) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 16.0,
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    rental.accessoryName,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    '남은 시간: ${rental.remainingTime.inHours}시간 ${rental.remainingTime.inMinutes % 60}분',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ]),
-                          ),
-                          _buildActiveRentals(viewModel),
-                          SliverToBoxAdapter(
-                            child: Container(
-                              height: 8,
-                              color: Colors.grey[200],
-                            ),
                           ),
                           _buildRecentRentals(viewModel),
                           SliverToBoxAdapter(
@@ -253,111 +300,99 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveRentals(HomeViewModel viewModel) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            '현재 대여 중',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        if (viewModel.activeRentals.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text('대여 중인 물품이 없습니다.'),
-          )
-        else
-          ...viewModel.activeRentals.map((rental) => Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey[300]!,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      rental.id,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '남은 시간: ${rental.remainingTime.inHours}시간 ${rental.remainingTime.inMinutes % 60}분',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-      ]),
-    );
-  }
-
   Widget _buildRecentRentals(HomeViewModel viewModel) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            '최근 대여 내역',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        if (viewModel.recentRentals.isEmpty)
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text('최근 대여 내역이 없습니다.'),
-          )
-        else
-          ...viewModel.recentRentals.map((rental) => Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey[300]!,
-                      width: 0.5,
+            child: Text(
+              '최근 대여 내역',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          if (viewModel.recentRentals.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text('최근 대여 내역이 없습니다.'),
+            )
+          else
+            SizedBox(
+              height: 180,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                itemCount: viewModel.recentRentals.length,
+                itemBuilder: (context, index) {
+                  final rental = viewModel.recentRentals[index];
+                  return Container(
+                    width: 200,
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[300]!),
                     ),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      rental.id,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                rental.accessoryName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                rental.stationName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: Colors.grey[300]!),
+                            ),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(
+                                Routes.rental,
+                                arguments: {
+                                  'accessoryId': rental.accessoryId,
+                                  'stationId': rental.stationId,
+                                },
+                              );
+                            },
+                            child: const Text('대여하기'),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '대여 시간: ${rental.startTime.toString()}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-      ]),
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 

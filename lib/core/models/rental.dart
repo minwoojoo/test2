@@ -31,6 +31,7 @@ class Rental {
     return '$startTime ~ $endTime';
   }
 
+  // 대여 시간 계산 (24시간 기준)
   Duration get remainingTime {
     final rentalDuration = const Duration(hours: 24);
     final elapsedTime = DateTime.now().difference(createdAt);
@@ -66,33 +67,5 @@ class Rental {
       default:
         return '알 수 없는 스테이션';
     }
-  }
-
-  factory Rental.fromJson(Map<String, dynamic> json) {
-    return Rental(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      accessoryId: json['accessoryId'] as String,
-      stationId: json['stationId'] as String,
-      totalPrice: json['totalPrice'] as int,
-      status: RentalStatus.values.firstWhere(
-        (e) => e.toString().split('.').last == json['status'],
-      ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'userId': userId,
-      'accessoryId': accessoryId,
-      'stationId': stationId,
-      'totalPrice': totalPrice,
-      'status': status.toString().split('.').last,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-    };
   }
 }

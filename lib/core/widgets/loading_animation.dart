@@ -60,7 +60,7 @@ class _HoneyLoadingAnimationState extends State<HoneyLoadingAnimation>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'assets/images/bee.png', // 꿀벌 이미지
+            'assets/images/bannabee.png', // 꿀벌 이미지
             width: 40,
             height: 40,
           ),

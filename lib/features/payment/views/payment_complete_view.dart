@@ -29,26 +29,6 @@ class PaymentCompleteView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      '🩷',
-                      style: TextStyle(fontSize: 50),
-                    ),
-                    const SizedBox(width: 16),
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 50,
-                      height: 50,
-                    ),
-                    const SizedBox(width: 16),
-                    const Text(
-                      '🩷',
-                      style: TextStyle(fontSize: 50),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 20),
                 const Text(
                   '결제가 완료되었습니다',
@@ -73,7 +53,7 @@ class PaymentCompleteView extends StatelessWidget {
                       Text('결제금액: ${rental.totalPrice}원'),
                       const SizedBox(height: 8),
                       Text(
-                        '대여시간: ${rental.startTime.toString()} ~ ${rental.endTime.toString()}',
+                        '대여시간: ${rental.formattedRentalTime}',
                       ),
                     ],
                   ),

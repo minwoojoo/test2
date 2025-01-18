@@ -65,10 +65,8 @@ class QRScanViewModel with ChangeNotifier {
         userId: 'test-user-id',
         accessoryId: accessoryId,
         stationId: 'test-station-id',
-        startTime: DateTime.now(),
-        endTime: DateTime.now().add(Duration(hours: _rentalDuration)),
         totalPrice: _rentalDuration * 1000, // 시간당 1000원
-        status: RentalStatus.pending,
+        status: RentalStatus.active,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -97,9 +95,16 @@ class QRScanViewModel with ChangeNotifier {
       await Future.delayed(const Duration(seconds: 2)); // 처리 시뮬레이션
 
       // 테스트 반납 처리
-      _rental = initialRental!.copyWith(
+      final now = DateTime.now();
+      _rental = Rental(
+        id: initialRental!.id,
+        userId: initialRental!.userId,
+        accessoryId: initialRental!.accessoryId,
+        stationId: initialRental!.stationId,
+        totalPrice: initialRental!.totalPrice,
         status: RentalStatus.completed,
-        updatedAt: DateTime.now(),
+        createdAt: initialRental!.createdAt,
+        updatedAt: now,
       );
       _isReturnComplete = true;
     } catch (e) {
