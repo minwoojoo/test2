@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../app/routes.dart';
+import '../services/auth_service.dart';
 
 class AppBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -24,7 +25,12 @@ class AppBottomNavigationBar extends StatelessWidget {
             Navigator.of(context).pushReplacementNamed(Routes.rental);
             break;
           case 2:
-            Navigator.of(context).pushReplacementNamed(Routes.mypage);
+            final user = AuthService.instance.currentUser;
+            if (user?.email != null) {
+              Navigator.of(context).pushReplacementNamed(Routes.mypage);
+            } else {
+              Navigator.of(context).pushReplacementNamed(Routes.login);
+            }
             break;
         }
       },

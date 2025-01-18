@@ -31,9 +31,9 @@ class _RentalContent extends StatelessWidget {
       case AccessoryCategory.powerBank:
         return '보조배터리';
       case AccessoryCategory.dock:
-        return '거치대';
-      case AccessoryCategory.etc:
-        return '기타';
+        return '독';
+      case AccessoryCategory.cable:
+        return '케이블';
       default:
         return '기타';
     }
