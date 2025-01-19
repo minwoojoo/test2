@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../core/services/auth_service.dart';
-import '../../../app/routes.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -71,11 +70,12 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('프로필 수정'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('프로필 수정'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -102,12 +102,12 @@ class _EditProfileViewState extends State<EditProfileView> {
                     Positioned(
                       right: 0,
                       bottom: 0,
-                      child: CupertinoButton(
+                      child: IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
                           // TODO: 프로필 이미지 변경
                         },
-                        child: Container(
+                        icon: Container(
                           width: 36,
                           height: 36,
                           decoration: const BoxDecoration(
@@ -115,8 +115,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                             color: AppColors.primary,
                           ),
                           child: const Icon(
-                            CupertinoIcons.camera,
-                            color: CupertinoColors.white,
+                            Icons.camera_alt,
+                            color: Colors.white,
                             size: 20,
                           ),
                         ),
@@ -126,24 +126,36 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
               ),
               const SizedBox(height: 48),
-              CupertinoTextField(
+              TextField(
                 controller: _nameController,
-                placeholder: '이름',
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
+                decoration: InputDecoration(
+                  hintText: '이름',
+                  contentPadding: const EdgeInsets.all(16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.lightGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.lightGrey),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              CupertinoTextField(
+              TextField(
                 controller: _phoneController,
-                placeholder: '휴대폰 번호',
                 keyboardType: TextInputType.phone,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.lightGrey),
-                  borderRadius: BorderRadius.circular(8),
+                decoration: InputDecoration(
+                  hintText: '휴대폰 번호',
+                  contentPadding: const EdgeInsets.all(16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.lightGrey),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.lightGrey),
+                  ),
                 ),
               ),
               if (_error != null) ...[
@@ -157,10 +169,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
               ],
               const SizedBox(height: 32),
-              CupertinoButton.filled(
+              ElevatedButton(
                 onPressed: _isLoading ? null : _save,
                 child: _isLoading
-                    ? const CupertinoActivityIndicator()
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
                     : const Text('저장'),
               ),
             ],

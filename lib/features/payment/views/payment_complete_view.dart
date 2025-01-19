@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../data/models/rental.dart';
 import '../../../app/routes.dart';
@@ -15,8 +13,8 @@ class PaymentCompleteView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: SafeArea(
+    return Scaffold(
+      body: SafeArea(
         child: DefaultTextStyle.merge(
           style: const TextStyle(
             fontSize: 15,
@@ -39,10 +37,10 @@ class PaymentCompleteView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: CupertinoColors.white,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: CupertinoColors.systemGrey5,
+                      color: Colors.grey[200]!,
                     ),
                   ),
                   child: Column(
@@ -59,7 +57,7 @@ class PaymentCompleteView extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                CupertinoButton.filled(
+                ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacementNamed(Routes.home);
                   },

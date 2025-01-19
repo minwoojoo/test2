@@ -5,7 +5,6 @@ import '../../../core/widgets/bottom_navigation_bar.dart';
 import '../../../core/widgets/loading_animation.dart';
 import '../../../app/routes.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/models/rental.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});

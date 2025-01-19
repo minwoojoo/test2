@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../data/models/rental.dart';
 import '../../../app/routes.dart';
@@ -28,11 +27,12 @@ class _PaymentViewState extends State<PaymentView> {
     final hours = widget.rentalInfo['hours'] as int;
     final totalPrice = accessory.pricePerHour * hours;
 
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('결제하기'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('결제하기'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: DefaultTextStyle.merge(
           style: const TextStyle(
             fontSize: 15,
@@ -78,20 +78,18 @@ class _PaymentViewState extends State<PaymentView> {
                         title: '약관 동의',
                         child: Row(
                           children: [
-                            CupertinoButton(
+                            IconButton(
                               padding: EdgeInsets.zero,
                               onPressed: () {
                                 setState(() {
                                   _isAgreed = !_isAgreed;
                                 });
                               },
-                              child: Icon(
+                              icon: Icon(
                                 _isAgreed
-                                    ? CupertinoIcons.checkmark_square_fill
-                                    : CupertinoIcons.square,
-                                color: _isAgreed
-                                    ? CupertinoColors.activeBlue
-                                    : CupertinoColors.systemGrey,
+                                    ? Icons.check_box
+                                    : Icons.check_box_outline_blank,
+                                color: _isAgreed ? Colors.blue : Colors.grey,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -116,7 +114,7 @@ class _PaymentViewState extends State<PaymentView> {
                       textAlign: TextAlign.right,
                     ),
                     const SizedBox(height: 8),
-                    CupertinoButton.filled(
+                    ElevatedButton(
                       onPressed: _isAgreed
                           ? () {
                               final rental = Rental(
@@ -163,10 +161,10 @@ class _PaymentViewState extends State<PaymentView> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: CupertinoColors.white,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: CupertinoColors.systemGrey5,
+              color: Colors.grey[200]!,
             ),
           ),
           child: child,
@@ -176,8 +174,11 @@ class _PaymentViewState extends State<PaymentView> {
   }
 
   Widget _buildPaymentMethodTile(String method) {
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        alignment: Alignment.centerLeft,
+      ),
       onPressed: () {
         setState(() {
           _selectedPaymentMethod = method;
@@ -189,11 +190,10 @@ class _PaymentViewState extends State<PaymentView> {
           children: [
             Icon(
               _selectedPaymentMethod == method
-                  ? CupertinoIcons.circle_fill
-                  : CupertinoIcons.circle,
-              color: _selectedPaymentMethod == method
-                  ? CupertinoColors.activeBlue
-                  : CupertinoColors.systemGrey,
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color:
+                  _selectedPaymentMethod == method ? Colors.blue : Colors.grey,
             ),
             const SizedBox(width: 8),
             Text(method),

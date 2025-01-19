@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
@@ -63,11 +62,12 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('로그인'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('로그인'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Stack(
           children: [
             DefaultTextStyle.merge(
@@ -88,26 +88,42 @@ class _LoginViewState extends State<LoginView> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 48),
-                    CupertinoTextField(
+                    TextField(
                       controller: _emailController,
-                      placeholder: '이메일',
                       keyboardType: TextInputType.emailAddress,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.lightGrey),
-                        borderRadius: BorderRadius.circular(8),
+                      decoration: InputDecoration(
+                        hintText: '이메일',
+                        contentPadding: const EdgeInsets.all(16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              const BorderSide(color: AppColors.lightGrey),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              const BorderSide(color: AppColors.lightGrey),
+                        ),
                       ),
                       autocorrect: false,
                     ),
                     const SizedBox(height: 16),
-                    CupertinoTextField(
+                    TextField(
                       controller: _passwordController,
-                      placeholder: '비밀번호',
                       obscureText: true,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.lightGrey),
-                        borderRadius: BorderRadius.circular(8),
+                      decoration: InputDecoration(
+                        hintText: '비밀번호',
+                        contentPadding: const EdgeInsets.all(16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              const BorderSide(color: AppColors.lightGrey),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              const BorderSide(color: AppColors.lightGrey),
+                        ),
                       ),
                       autocorrect: false,
                     ),
@@ -125,7 +141,7 @@ class _LoginViewState extends State<LoginView> {
                     if (_isLoading)
                       const HoneyLoadingAnimation(isStationSelected: false)
                     else
-                      CupertinoButton.filled(
+                      ElevatedButton(
                         onPressed: _login,
                         child: const Text('로그인'),
                       ),

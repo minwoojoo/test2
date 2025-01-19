@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/rental_viewmodel.dart';
@@ -44,18 +43,18 @@ class _RentalContent extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: CupertinoPageScaffold(
-            navigationBar: CupertinoNavigationBar(
-              middle: const Text('대여하기'),
-              leading: CupertinoButton(
-                padding: EdgeInsets.zero,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('대여하기'),
+              centerTitle: true,
+              leading: IconButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacementNamed(Routes.home);
                 },
-                child: const Icon(CupertinoIcons.back),
+                icon: const Icon(Icons.arrow_back),
               ),
             ),
-            child: SafeArea(
+            body: SafeArea(
               child: Consumer<RentalViewModel>(
                 builder: (context, viewModel, child) {
                   if (viewModel.isLoading) {
@@ -76,180 +75,179 @@ class _RentalContent extends StatelessWidget {
                       color: Colors.black87,
                       height: 1.5,
                     ),
-                    child: CustomScrollView(
-                      slivers: [
-                        const SliverToBoxAdapter(
-                          child: SizedBox(height: 16),
-                        ),
-                        CupertinoSliverRefreshControl(
-                          onRefresh: viewModel.refresh,
-                        ),
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (viewModel.selectedStation != null) ...[
+                    child: RefreshIndicator(
+                      onRefresh: viewModel.refresh,
+                      child: CustomScrollView(
+                        slivers: [
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 16),
+                          ),
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (viewModel.selectedStation != null) ...[
+                                    const Text(
+                                      '선택된 스테이션',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey[200]!,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            viewModel.selectedStation!.name,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            viewModel.selectedStation!.address,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                  ],
                                   const Text(
-                                    '선택된 스테이션',
+                                    '대여 가능한 물품',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Container(
+                                  const SizedBox(height: 16),
+                                  SizedBox(
+                                    height: 40,
+                                    child: ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      children: AccessoryCategory.values
+                                          .map(
+                                            (category) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 8.0),
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: viewModel
+                                                              .selectedCategory ==
+                                                          category
+                                                      ? AppColors.primary
+                                                      : Colors.grey[200],
+                                                  foregroundColor: viewModel
+                                                              .selectedCategory ==
+                                                          category
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 16,
+                                                  ),
+                                                ),
+                                                onPressed: () => viewModel
+                                                    .selectCategory(category),
+                                                child: Text(
+                                                  _getCategoryName(category),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final accessory =
+                                    viewModel.filteredAccessories[index];
+                                return InkWell(
+                                  onTap: () {
+                                    viewModel.selectAccessory(accessory);
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => RentalDetailView(
+                                          accessory: accessory,
+                                          station: viewModel.selectedStation,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: CupertinoColors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: CupertinoColors.systemGrey5,
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey[200]!,
+                                          width: 0.5,
+                                        ),
                                       ),
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                accessory.name,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                accessory.description,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                         Text(
-                                          viewModel.selectedStation!.name,
+                                          '${accessory.pricePerHour}원/시간',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          viewModel.selectedStation!.address,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: CupertinoColors.systemGrey,
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(height: 24),
-                                ],
-                                const Text(
-                                  '대여 가능한 물품',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                SizedBox(
-                                  height: 40,
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    children: AccessoryCategory.values
-                                        .map(
-                                          (category) => Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 8.0),
-                                            child: CupertinoButton(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                              ),
-                                              color: viewModel
-                                                          .selectedCategory ==
-                                                      category
-                                                  ? AppColors.primary
-                                                  : CupertinoColors.systemGrey5,
-                                              child: Text(
-                                                _getCategoryName(category),
-                                                style: TextStyle(
-                                                  color: viewModel
-                                                              .selectedCategory ==
-                                                          category
-                                                      ? CupertinoColors.white
-                                                      : CupertinoColors.black,
-                                                ),
-                                              ),
-                                              onPressed: () => viewModel
-                                                  .selectCategory(category),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
+                              childCount: viewModel.filteredAccessories.length,
                             ),
                           ),
-                        ),
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final accessory =
-                                  viewModel.filteredAccessories[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  viewModel.selectAccessory(accessory);
-                                  Navigator.of(context).push(
-                                    CupertinoPageRoute(
-                                      builder: (context) => RentalDetailView(
-                                        accessory: accessory,
-                                        station: viewModel.selectedStation,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: CupertinoColors.systemGrey5,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              accessory.name,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              accessory.description,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color:
-                                                    CupertinoColors.systemGrey,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        '${accessory.pricePerHour}원/시간',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                            childCount: viewModel.filteredAccessories.length,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

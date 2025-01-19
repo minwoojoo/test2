@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_theme.dart';
 import '../../../app/routes.dart';
@@ -44,8 +43,8 @@ class _SignupCompleteViewState extends State<SignupCompleteView> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: SafeArea(
+    return Scaffold(
+      body: SafeArea(
         child: DefaultTextStyle.merge(
           style: const TextStyle(
             fontSize: 15,
@@ -70,7 +69,7 @@ class _SignupCompleteViewState extends State<SignupCompleteView> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                CupertinoButton.filled(
+                ElevatedButton(
                   onPressed: () {
                     _timer?.cancel();
                     Navigator.of(context).pushReplacementNamed(Routes.login);

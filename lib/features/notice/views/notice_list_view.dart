@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/loading_animation.dart';
 import '../viewmodels/notice_list_viewmodel.dart';
-import '../../../app/routes.dart';
 
 class NoticeListView extends StatelessWidget {
   const NoticeListView({super.key});

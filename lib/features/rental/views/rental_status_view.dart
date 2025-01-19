@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/rental_status_viewmodel.dart';
@@ -24,11 +23,12 @@ class _RentalStatusContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('대여 현황'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('대여 현황'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Consumer<RentalStatusViewModel>(
           builder: (context, viewModel, _) {
             if (viewModel.isLoading) {
@@ -62,10 +62,10 @@ class _RentalStatusContent extends StatelessWidget {
                   return Container(
                     margin: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: CupertinoColors.white,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: CupertinoColors.systemGrey5,
+                        color: Colors.grey[200]!,
                       ),
                     ),
                     child: Column(
@@ -93,7 +93,7 @@ class _RentalStatusContent extends StatelessWidget {
                               Text(
                                 '남은 시간: ${rental.remainingTime.inHours}시간 ${rental.remainingTime.inMinutes % 60}분',
                                 style: AppTheme.bodyMedium.copyWith(
-                                  color: CupertinoColors.activeBlue,
+                                  color: Colors.blue,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -101,18 +101,17 @@ class _RentalStatusContent extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             border: Border(
                               top: BorderSide(
-                                color: CupertinoColors.systemGrey5,
+                                color: Colors.grey[200]!,
                               ),
                             ),
                           ),
                           child: Row(
                             children: [
                               Expanded(
-                                child: CupertinoButton(
-                                  padding: EdgeInsets.zero,
+                                child: TextButton(
                                   onPressed: () {
                                     showDialog(
                                       context: context,
@@ -137,14 +136,13 @@ class _RentalStatusContent extends StatelessWidget {
                               Container(
                                 width: 1,
                                 height: 44,
-                                color: CupertinoColors.systemGrey5,
+                                color: Colors.grey[200],
                               ),
                               Expanded(
-                                child: CupertinoButton(
-                                  padding: EdgeInsets.zero,
+                                child: TextButton(
                                   onPressed: () async {
                                     await Navigator.of(context).push(
-                                      CupertinoPageRoute(
+                                      MaterialPageRoute(
                                         builder: (context) => QRScanView(
                                           rentalDuration: 0,
                                           isReturn: true,

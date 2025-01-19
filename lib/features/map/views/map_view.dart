@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -23,16 +23,17 @@ class _MapContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('주변 스테이션'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('주변 스테이션'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Consumer<MapViewModel>(
           builder: (context, viewModel, _) {
             if (viewModel.isLoading) {
               return const Center(
-                child: CupertinoActivityIndicator(),
+                child: CircularProgressIndicator(),
               );
             }
 
@@ -60,11 +61,11 @@ class _MapContent extends StatelessWidget {
                 Positioned(
                   right: 16,
                   bottom: viewModel.selectedStation != null ? 200 : 16,
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.all(12),
-                    color: AppColors.white,
+                  child: FloatingActionButton(
+                    mini: true,
+                    backgroundColor: AppColors.white,
                     child: const Icon(
-                      CupertinoIcons.location,
+                      Icons.my_location,
                       color: AppColors.black,
                     ),
                     onPressed: viewModel.refreshLocation,
@@ -106,10 +107,10 @@ class _MapContent extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              CupertinoButton(
+                              IconButton(
                                 padding: EdgeInsets.zero,
-                                child: const Icon(
-                                  CupertinoIcons.xmark_circle_fill,
+                                icon: const Icon(
+                                  Icons.close,
                                   color: AppColors.grey,
                                 ),
                                 onPressed: viewModel.clearSelectedStation,
@@ -119,12 +120,12 @@ class _MapContent extends StatelessWidget {
                           const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
-                            child: CupertinoButton(
-                              color: AppColors.primary,
-                              child: const Text(
-                                '이 스테이션에서 대여하기',
-                                style: TextStyle(color: AppColors.black),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: AppColors.black,
                               ),
+                              child: const Text('이 스테이션에서 대여하기'),
                               onPressed: () {
                                 Navigator.of(context).pushNamed(
                                   Routes.rental,

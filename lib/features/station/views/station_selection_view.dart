@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/station_selection_viewmodel.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_theme.dart';
 import '../../../core/widgets/loading_animation.dart';
 import '../../../data/models/station.dart';
 

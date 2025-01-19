@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/rental.dart';
 import '../viewmodels/qr_scan_viewmodel.dart';
@@ -37,11 +37,12 @@ class _QRScanContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('QR 스캔'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('QR 스캔'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: Consumer<QRScanViewModel>(
           builder: (context, viewModel, _) {
             if (viewModel.rental != null && !viewModel.isReturn) {
@@ -75,23 +76,23 @@ class _QRScanContent extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (index) {
-                        return CupertinoButton(
+                        return IconButton(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           onPressed: () => viewModel.setRating(index + 1),
-                          child: Icon(
+                          icon: Icon(
                             index < viewModel.rating
-                                ? CupertinoIcons.star_fill
-                                : CupertinoIcons.star,
+                                ? Icons.star
+                                : Icons.star_border,
                             color: index < viewModel.rating
-                                ? CupertinoColors.systemYellow
-                                : CupertinoColors.systemGrey,
+                                ? Colors.amber
+                                : Colors.grey,
                             size: 40,
                           ),
                         );
                       }),
                     ),
                     const Spacer(),
-                    CupertinoButton.filled(
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pushReplacementNamed(Routes.home);
                       },
@@ -130,7 +131,7 @@ class _QRScanContent extends StatelessWidget {
                     ),
                   ] else if (viewModel.error != null) ...[
                     Icon(
-                      CupertinoIcons.exclamationmark_circle_fill,
+                      Icons.error_outline,
                       color: AppColors.error,
                       size: 48,
                     ),
@@ -143,7 +144,7 @@ class _QRScanContent extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
-                    CupertinoButton(
+                    TextButton(
                       onPressed: viewModel.resumeScanning,
                       child: const Text('다시 시도'),
                     ),

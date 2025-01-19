@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
@@ -35,11 +34,12 @@ class _TermsViewState extends State<TermsView> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('이용약관'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('이용약관'),
+        centerTitle: true,
       ),
-      child: SafeArea(
+      body: SafeArea(
         child: DefaultTextStyle.merge(
           style: const TextStyle(
             fontSize: 15,
@@ -105,7 +105,7 @@ class _TermsViewState extends State<TermsView> {
                   },
                 ),
                 const SizedBox(height: 32),
-                CupertinoButton.filled(
+                ElevatedButton(
                   onPressed: _isAllAgreed
                       ? () {
                           Navigator.of(context).pushNamed(Routes.signup);
@@ -129,15 +129,13 @@ class _TermsViewState extends State<TermsView> {
   }) {
     return Row(
       children: [
-        CupertinoButton(
+        IconButton(
           padding: EdgeInsets.zero,
           onPressed: () {
             onChanged(!value);
           },
-          child: Icon(
-            value
-                ? CupertinoIcons.checkmark_square_fill
-                : CupertinoIcons.square,
+          icon: Icon(
+            value ? Icons.check_box : Icons.check_box_outline_blank,
             color: value ? AppColors.primary : AppColors.grey,
           ),
         ),
@@ -149,8 +147,10 @@ class _TermsViewState extends State<TermsView> {
           ),
         ),
         if (!isTitle)
-          CupertinoButton(
-            padding: EdgeInsets.zero,
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+            ),
             onPressed: () {
               // TODO: 약관 상세 페이지로 이동
             },
