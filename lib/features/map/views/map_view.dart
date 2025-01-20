@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
@@ -48,14 +48,22 @@ class _MapContent extends StatelessWidget {
 
             return Stack(
               children: [
-                GoogleMap(
-                  initialCameraPosition: viewModel.initialCameraPosition,
-                  markers: viewModel.markers,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  onMapCreated: (controller) {
-                    // TODO: 필요한 경우 컨트롤러 저장
+                NaverMap(
+                  onMapReady: (controller) {
+                    viewModel.onMapCreated(controller);
+                  },
+                  options: NaverMapViewOptions(
+                    initialCameraPosition: NCameraPosition(
+                      target: NLatLng(
+                        viewModel.currentLocation?.latitude ?? 37.5665,
+                        viewModel.currentLocation?.longitude ?? 126.9780,
+                      ),
+                      zoom: 15,
+                    ),
+                    contentPadding: const EdgeInsets.all(0),
+                  ),
+                  onMapTapped: (point, latLng) {
+                    viewModel.clearSelectedStation();
                   },
                 ),
                 Positioned(

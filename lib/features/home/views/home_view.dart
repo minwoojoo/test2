@@ -118,6 +118,19 @@ class HomeView extends StatelessWidget {
                                     _buildSearchBar(),
                                     const SizedBox(height: 16),
                                     _buildNoticeSection(context, viewModel),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pushNamed(Routes.map);
+                                      },
+                                      icon: const Icon(Icons.map),
+                                      label: const Text('지도에서 스테이션 찾기'),
+                                      style: ElevatedButton.styleFrom(
+                                        minimumSize:
+                                            const Size(double.infinity, 48),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

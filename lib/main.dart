@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'firebase_options.dart';
 import 'app/routes.dart';
 import 'core/constants/app_colors.dart';
@@ -24,6 +25,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await NaverMapSdk.instance.initialize(
+    clientId: 'gaumfmevf3',
+    onAuthFailed: (error) {
+      print('네이버 지도 인증 실패: $error');
+    },
   );
   await AuthService.initialize();
   runApp(const MyApp());

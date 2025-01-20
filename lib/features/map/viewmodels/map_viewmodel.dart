@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import '../../../data/models/station.dart';
 import '../../../data/repositories/station_repository.dart';
 import '../../../core/services/location_service.dart';
@@ -9,11 +10,12 @@ class MapViewModel with ChangeNotifier {
   final StationRepository _stationRepository;
   final LocationService _locationService;
 
-  Set<Marker> _markers = {};
+  List<NMarker> _markers = [];
   Position? _currentPosition;
   Station? _selectedStation;
   bool _isLoading = false;
   String? _error;
+  NaverMapController? _mapController;
 
   MapViewModel({
     StationRepository? stationRepository,
@@ -21,11 +23,19 @@ class MapViewModel with ChangeNotifier {
   })  : _stationRepository = stationRepository ?? StationRepository.instance,
         _locationService = locationService ?? LocationService.instance;
 
-  Set<Marker> get markers => _markers;
-  Position? get currentPosition => _currentPosition;
+  List<NMarker> get naverMarkers => _markers;
+  Position? get currentLocation => _currentPosition;
   Station? get selectedStation => _selectedStation;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  void onMapCreated(NaverMapController controller) {
+    _mapController = controller;
+    if (_markers.isNotEmpty) {
+      _mapController?.addOverlayAll(_markers.toSet());
+    }
+    _loadStations();
+  }
 
   Future<void> init() async {
     _isLoading = true;
@@ -34,7 +44,6 @@ class MapViewModel with ChangeNotifier {
 
     try {
       await _getCurrentLocation();
-      await _loadStations();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -56,18 +65,32 @@ class MapViewModel with ChangeNotifier {
 
     try {
       final stations = await _stationRepository.getNearbyStations();
+      _markers.clear();
 
-      _markers = stations.map((station) {
-        return Marker(
-          markerId: MarkerId(station.id),
-          position: LatLng(station.latitude, station.longitude),
-          infoWindow: InfoWindow(
-            title: station.name,
-            snippet: station.address,
-          ),
-          onTap: () => _selectStation(station),
+      final markerIcon = await NOverlayImage.fromAssetImage(
+        'assets/images/honey.png',
+      );
+
+      for (final station in stations) {
+        final marker = NMarker(
+          id: station.id,
+          position: NLatLng(station.latitude, station.longitude),
+          icon: markerIcon,
+          size: const Size(48, 48),
+          anchor: const NPoint(0.5, 0.5),
         );
-      }).toSet();
+
+        marker.setOnTapListener((marker) {
+          _selectStation(station);
+        });
+
+        _markers.add(marker);
+      }
+
+      if (_mapController != null) {
+        await _mapController!.clearOverlays();
+        await _mapController!.addOverlayAll(_markers.toSet());
+      }
 
       notifyListeners();
     } catch (e) {
@@ -77,30 +100,32 @@ class MapViewModel with ChangeNotifier {
 
   void _selectStation(Station station) {
     _selectedStation = station;
+    if (_mapController != null) {
+      _mapController!.updateCamera(
+        NCameraUpdate.withParams(
+          target: NLatLng(station.latitude, station.longitude),
+          zoom: 15,
+        ),
+      );
+    }
     notifyListeners();
   }
 
   Future<void> refreshLocation() async {
     await _getCurrentLocation();
-    await _loadStations();
+    if (_currentPosition != null && _mapController != null) {
+      _mapController!.updateCamera(
+        NCameraUpdate.withParams(
+          target:
+              NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          zoom: 15,
+        ),
+      );
+    }
   }
 
   void clearSelectedStation() {
     _selectedStation = null;
     notifyListeners();
-  }
-
-  CameraPosition get initialCameraPosition {
-    if (_currentPosition != null) {
-      return CameraPosition(
-        target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-        zoom: 14,
-      );
-    }
-    // 서울 시청 좌표를 기본값으로 사용
-    return const CameraPosition(
-      target: LatLng(37.5665, 126.9780),
-      zoom: 14,
-    );
   }
 }
