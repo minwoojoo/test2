@@ -23,7 +23,7 @@ class QRScanViewModel with ChangeNotifier {
     required int rentalDuration,
     this.isReturn = false,
     this.initialRental,
-  })  : _rentalRepository = rentalRepository ?? RentalRepository(),
+  })  : _rentalRepository = rentalRepository ?? RentalRepository.instance,
         _accessoryRepository = accessoryRepository ?? AccessoryRepository(),
         _rentalDuration = rentalDuration;
 
@@ -65,6 +65,8 @@ class QRScanViewModel with ChangeNotifier {
         userId: 'test-user-id',
         accessoryId: accessoryId,
         stationId: 'test-station-id',
+        accessoryName: '보조배터리 10000mAh',
+        stationName: '강남역점',
         totalPrice: _rentalDuration * 1000, // 시간당 1000원
         status: RentalStatus.active,
         createdAt: DateTime.now(),
@@ -101,6 +103,8 @@ class QRScanViewModel with ChangeNotifier {
         userId: initialRental!.userId,
         accessoryId: initialRental!.accessoryId,
         stationId: initialRental!.stationId,
+        accessoryName: initialRental!.accessoryName,
+        stationName: initialRental!.stationName,
         totalPrice: initialRental!.totalPrice,
         status: RentalStatus.completed,
         createdAt: initialRental!.createdAt,

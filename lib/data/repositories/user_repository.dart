@@ -8,73 +8,20 @@ class UserRepository implements BaseRepository<User> {
     await Future.delayed(const Duration(seconds: 1));
     return User(
       id: id,
-      email: 'test@example.com',
-      name: '테스트 사용자',
-      phoneNumber: '010-1234-5678',
-      profileImageUrl: 'https://example.com/images/profile.jpg',
+      email: '',
+      name: '',
+      phoneNumber: '',
+      profileImageUrl: '',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      rentals: [
-        Rental(
-          id: 'rental-1',
-          userId: id,
-          accessoryId: 'A1',
-          stationId: 'S1',
-          totalPrice: 3000,
-          status: RentalStatus.active,
-          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-          updatedAt: DateTime.now(),
-        ),
-        Rental(
-          id: 'rental-2',
-          userId: id,
-          accessoryId: 'A2',
-          stationId: 'S2',
-          totalPrice: 5000,
-          status: RentalStatus.completed,
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          updatedAt: DateTime.now().subtract(const Duration(hours: 20)),
-        ),
-      ],
+      rentals: [],
     );
   }
 
   @override
   Future<List<User>> getAll() async {
     await Future.delayed(const Duration(seconds: 1));
-    return [
-      User(
-        id: 'user-1',
-        email: 'user1@example.com',
-        name: '사용자 1',
-        phoneNumber: '010-1234-5678',
-        profileImageUrl: 'https://example.com/images/profile1.jpg',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        rentals: [
-          Rental(
-            id: 'rental-1',
-            userId: 'user-1',
-            accessoryId: 'A1',
-            stationId: 'S1',
-            totalPrice: 3000,
-            status: RentalStatus.active,
-            createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-            updatedAt: DateTime.now(),
-          ),
-        ],
-      ),
-      User(
-        id: 'user-2',
-        email: 'user2@example.com',
-        name: '사용자 2',
-        phoneNumber: '010-2345-6789',
-        profileImageUrl: 'https://example.com/images/profile2.jpg',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        rentals: [],
-      ),
-    ];
+    return [];
   }
 
   @override
@@ -97,25 +44,14 @@ class UserRepository implements BaseRepository<User> {
   Future<User> getByEmail(String email) async {
     await Future.delayed(const Duration(seconds: 1));
     return User(
-      id: 'user-1',
+      id: '',
       email: email,
-      name: '테스트 사용자',
-      phoneNumber: '010-1234-5678',
-      profileImageUrl: 'https://example.com/images/profile.jpg',
+      name: '',
+      phoneNumber: '',
+      profileImageUrl: '',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
-      rentals: [
-        Rental(
-          id: 'rental-1',
-          userId: 'user-1',
-          accessoryId: 'A1',
-          stationId: 'S1',
-          totalPrice: 3000,
-          status: RentalStatus.active,
-          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-          updatedAt: DateTime.now(),
-        ),
-      ],
+      rentals: [],
     );
   }
 }

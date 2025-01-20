@@ -123,6 +123,8 @@ class _PaymentViewState extends State<PaymentView> {
                                     AuthService.instance.currentUser?.id ?? '',
                                 accessoryId: accessory.id,
                                 stationId: station.id,
+                                accessoryName: accessory.name,
+                                stationName: station.name,
                                 totalPrice: totalPrice,
                                 status: RentalStatus.active,
                                 createdAt: DateTime.now(),

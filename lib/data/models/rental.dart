@@ -9,36 +9,76 @@ class Rental {
   final String userId;
   final String accessoryId;
   final String stationId;
+  final String accessoryName;
+  final String stationName;
   final int totalPrice;
   final RentalStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const Rental({
+  Rental({
     required this.id,
     required this.userId,
     required this.accessoryId,
     required this.stationId,
+    required this.accessoryName,
+    required this.stationName,
     required this.totalPrice,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  String get formattedRentalTime {
-    final startTime = createdAt.toString().substring(0, 19);
-    final endTime = updatedAt.toString().substring(0, 19);
-    return '$startTime ~ $endTime';
+  factory Rental.fromJson(Map<String, dynamic> json) {
+    return Rental(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      accessoryId: json['accessoryId'] as String,
+      stationId: json['stationId'] as String,
+      accessoryName: json['accessoryName'] as String,
+      stationName: json['stationName'] as String,
+      totalPrice: json['totalPrice'] as int,
+      status: RentalStatus.values.firstWhere(
+        (e) => e.toString() == 'RentalStatus.${json['status']}',
+      ),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'accessoryId': accessoryId,
+      'stationId': stationId,
+      'accessoryName': accessoryName,
+      'stationName': stationName,
+      'totalPrice': totalPrice,
+      'status': status.toString().split('.').last,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
   }
 
   Duration get remainingTime {
     final rentalDuration = const Duration(hours: 24);
     final elapsedTime = DateTime.now().difference(createdAt);
-    final remaining = rentalDuration - elapsedTime;
-    return remaining.isNegative ? Duration.zero : remaining;
+    return rentalDuration - elapsedTime;
   }
 
-  String get accessoryName {
+  String get formattedRentalTime {
+    final duration = DateTime.now().difference(createdAt);
+    if (duration.inDays > 0) {
+      return '${duration.inDays}일';
+    } else if (duration.inHours > 0) {
+      return '${duration.inHours}시간';
+    } else {
+      return '${duration.inMinutes}분';
+    }
+  }
+
+  String get accessoryNameFromId {
     switch (accessoryId) {
       case 'A1':
         return '아이폰 충전기';
@@ -53,7 +93,7 @@ class Rental {
     }
   }
 
-  String get stationName {
+  String get stationNameFromId {
     switch (stationId) {
       case 'S1':
         return '강남역점';
@@ -66,33 +106,5 @@ class Rental {
       default:
         return '알 수 없는 스테이션';
     }
-  }
-
-  factory Rental.fromJson(Map<String, dynamic> json) {
-    return Rental(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      accessoryId: json['accessoryId'] as String,
-      stationId: json['stationId'] as String,
-      totalPrice: json['totalPrice'] as int,
-      status: RentalStatus.values.firstWhere(
-        (e) => e.toString().split('.').last == json['status'],
-      ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'userId': userId,
-      'accessoryId': accessoryId,
-      'stationId': stationId,
-      'totalPrice': totalPrice,
-      'status': status.toString().split('.').last,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-    };
   }
 }

@@ -23,7 +23,7 @@ class PaymentViewModel with ChangeNotifier {
     required Rental rental,
     RentalRepository? rentalRepository,
   })  : _rental = rental,
-        _rentalRepository = rentalRepository ?? RentalRepository();
+        _rentalRepository = rentalRepository ?? RentalRepository.instance;
 
   PaymentMethod get selectedMethod => _selectedMethod;
   bool get isProcessing => _isProcessing;

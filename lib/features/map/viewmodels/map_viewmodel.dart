@@ -56,6 +56,13 @@ class MapViewModel with ChangeNotifier {
     final position = await _locationService.getCurrentLocation();
     if (position != null) {
       _currentPosition = position;
+      if (_mapController != null) {
+        final locationOverlay = await _mapController!.getLocationOverlay();
+        locationOverlay.setPosition(
+          NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+        );
+        locationOverlay.setIsVisible(true);
+      }
       notifyListeners();
     }
   }
@@ -114,6 +121,12 @@ class MapViewModel with ChangeNotifier {
   Future<void> refreshLocation() async {
     await _getCurrentLocation();
     if (_currentPosition != null && _mapController != null) {
+      final locationOverlay = await _mapController!.getLocationOverlay();
+      locationOverlay.setPosition(
+        NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+      );
+      locationOverlay.setIsVisible(true);
+
       _mapController!.updateCamera(
         NCameraUpdate.withParams(
           target:

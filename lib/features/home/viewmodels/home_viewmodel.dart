@@ -31,7 +31,7 @@ class HomeViewModel extends ChangeNotifier {
     LocationService? locationService,
     AuthService? authService,
   })  : _stationRepository = stationRepository ?? StationRepository.instance,
-        _rentalRepository = rentalRepository ?? RentalRepository(),
+        _rentalRepository = rentalRepository ?? RentalRepository.instance,
         _noticeRepository = noticeRepository ?? NoticeRepository(),
         _locationService = locationService ?? LocationService.instance,
         _authService = authService ?? AuthService.instance {
@@ -101,8 +101,8 @@ class HomeViewModel extends ChangeNotifier {
     try {
       final userId = _authService.currentUser?.id;
       if (userId != null) {
-        _activeRentals = await _rentalRepository.getActiveRentals(userId);
-        _recentRentals = await _rentalRepository.getRecentRentals(userId);
+        _activeRentals = await _rentalRepository.getActiveRentals();
+        _recentRentals = await _rentalRepository.getRecentRentals();
       }
     } catch (e) {
       print('Failed to load rentals: $e');
