@@ -20,6 +20,7 @@ class MapViewModel with ChangeNotifier {
   String? _error;
   NaverMapController? _mapController;
   NLocationOverlay? _locationOverlay;
+  final List<Station> _stations = [];
 
   MapViewModel({
     StationRepository? stationRepository,
@@ -35,7 +36,7 @@ class MapViewModel with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  void onMapCreated(NaverMapController controller) async {
+  Future<void> onMapCreated(NaverMapController controller) async {
     _mapController = controller;
     _locationOverlay = await controller.getLocationOverlay();
 
@@ -57,6 +58,37 @@ class MapViewModel with ChangeNotifier {
 
     // 스테이션 로드
     _loadStations();
+  }
+
+  Future<void> addMarkers() async {
+    if (_mapController == null) return;
+
+    final markerIcon = await NOverlayImage.fromAssetImage(
+      'assets/images/honey.png',
+    );
+
+    for (final station in _stations) {
+      final marker = NMarker(
+        id: station.id,
+        position: NLatLng(
+          station.latitude,
+          station.longitude,
+        ),
+        icon: markerIcon,
+        size: const Size(48, 48),
+        anchor: const NPoint(0.5, 0.5),
+      );
+
+      marker.setOnTapListener((marker) {
+        _selectStation(
+          _stations.firstWhere((s) => s.id == marker.info.id),
+        );
+      });
+
+      _markers.add(marker);
+    }
+
+    await _mapController?.addOverlayAll(_markers.toSet());
   }
 
   Future<void> init() async {

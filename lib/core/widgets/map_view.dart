@@ -59,6 +59,8 @@ class _MapViewState extends State<MapView> {
               locationOverlay.setIsVisible(true);
             }
 
+            // 지도가 완전히 로드된 후 마커 추가
+            await Future.delayed(const Duration(milliseconds: 500));
             if (widget.stations != null) {
               _addStationMarkers();
             }

@@ -55,7 +55,8 @@ class _MapContent extends StatelessWidget {
               children: [
                 NaverMap(
                   onMapReady: (controller) async {
-                    viewModel.onMapCreated(controller);
+                    // 지도 컨트롤러 초기화
+                    await viewModel.onMapCreated(controller);
 
                     // 현재 위치 오버레이 활성화
                     final locationOverlay =
@@ -70,6 +71,10 @@ class _MapContent extends StatelessWidget {
                         ),
                       );
                     }
+
+                    // 지도가 완전히 로드된 후 마커 추가
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    await viewModel.addMarkers();
                   },
                   options: NaverMapViewOptions(
                     initialCameraPosition: NCameraPosition(
