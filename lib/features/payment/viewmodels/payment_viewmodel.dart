@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../../data/models/rental.dart';
 import '../../../data/repositories/rental_repository.dart';
+import '../../../core/services/storage_service.dart';
 import 'package:flutter/material.dart';
 
 enum PaymentMethod {
@@ -12,6 +13,7 @@ enum PaymentMethod {
 
 class PaymentViewModel with ChangeNotifier {
   final RentalRepository _rentalRepository;
+  final StorageService _storageService;
   final Rental _rental;
 
   PaymentMethod _selectedMethod = PaymentMethod.card;
@@ -22,8 +24,10 @@ class PaymentViewModel with ChangeNotifier {
   PaymentViewModel({
     required Rental rental,
     RentalRepository? rentalRepository,
+    StorageService? storageService,
   })  : _rental = rental,
-        _rentalRepository = rentalRepository ?? RentalRepository.instance;
+        _rentalRepository = rentalRepository ?? RentalRepository.instance,
+        _storageService = storageService ?? StorageService.instance;
 
   PaymentMethod get selectedMethod => _selectedMethod;
   bool get isProcessing => _isProcessing;
@@ -44,6 +48,9 @@ class PaymentViewModel with ChangeNotifier {
     try {
       // 결제 프로세스 시뮬레이션
       await Future.delayed(const Duration(seconds: 2));
+
+      // 결제 성공 시 선택 정보 삭제
+      await _storageService.clearSelections();
 
       // 결제 성공 처리
       _isComplete = true;

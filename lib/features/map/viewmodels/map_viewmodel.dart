@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import '../../../data/models/station.dart';
+import '../../../data/models/accessory.dart';
 import '../../../data/repositories/station_repository.dart';
 import '../../../core/services/location_service.dart';
+import '../../../core/services/storage_service.dart';
 
 class MapViewModel with ChangeNotifier {
   final StationRepository _stationRepository;
   final LocationService _locationService;
+  final StorageService _storageService;
 
   List<NMarker> _markers = [];
   Position? _currentPosition;
@@ -16,12 +19,15 @@ class MapViewModel with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   NaverMapController? _mapController;
+  NLocationOverlay? _locationOverlay;
 
   MapViewModel({
     StationRepository? stationRepository,
     LocationService? locationService,
+    StorageService? storageService,
   })  : _stationRepository = stationRepository ?? StationRepository.instance,
-        _locationService = locationService ?? LocationService.instance;
+        _locationService = locationService ?? LocationService.instance,
+        _storageService = storageService ?? StorageService.instance;
 
   List<NMarker> get naverMarkers => _markers;
   Position? get currentLocation => _currentPosition;
@@ -29,11 +35,27 @@ class MapViewModel with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  void onMapCreated(NaverMapController controller) {
+  void onMapCreated(NaverMapController controller) async {
     _mapController = controller;
-    if (_markers.isNotEmpty) {
-      _mapController?.addOverlayAll(_markers.toSet());
+    _locationOverlay = await controller.getLocationOverlay();
+
+    // 현재 위치로 이동
+    if (_currentPosition != null) {
+      await _mapController?.updateCamera(
+        NCameraUpdate.withParams(
+          target:
+              NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+          zoom: 15,
+        ),
+      );
     }
+
+    // 마커 추가
+    if (_markers.isNotEmpty) {
+      await _mapController?.addOverlayAll(_markers.toSet());
+    }
+
+    // 스테이션 로드
     _loadStations();
   }
 
@@ -43,7 +65,11 @@ class MapViewModel with ChangeNotifier {
     notifyListeners();
 
     try {
+      // 현재 위치를 먼저 가져옴
       await _getCurrentLocation();
+
+      // 저장된 스테이션 정보 불러오기
+      _selectedStation = await _storageService.getSelectedStation();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -56,12 +82,21 @@ class MapViewModel with ChangeNotifier {
     final position = await _locationService.getCurrentLocation();
     if (position != null) {
       _currentPosition = position;
-      if (_mapController != null) {
-        final locationOverlay = await _mapController!.getLocationOverlay();
-        locationOverlay.setPosition(
+      if (_locationOverlay != null) {
+        _locationOverlay!.setPosition(
           NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
         );
-        locationOverlay.setIsVisible(true);
+        _locationOverlay!.setIsVisible(true);
+
+        if (_mapController != null) {
+          await _mapController!.updateCamera(
+            NCameraUpdate.withParams(
+              target: NLatLng(
+                  _currentPosition!.latitude, _currentPosition!.longitude),
+              zoom: 15,
+            ),
+          );
+        }
       }
       notifyListeners();
     }
@@ -105,10 +140,12 @@ class MapViewModel with ChangeNotifier {
     }
   }
 
-  void _selectStation(Station station) {
+  Future<void> _selectStation(Station station) async {
     _selectedStation = station;
+    // 선택한 스테이션 정보 저장
+    await _storageService.setSelectedStation(station);
     if (_mapController != null) {
-      _mapController!.updateCamera(
+      await _mapController!.updateCamera(
         NCameraUpdate.withParams(
           target: NLatLng(station.latitude, station.longitude),
           zoom: 15,
@@ -118,16 +155,11 @@ class MapViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> refreshLocation() async {
-    await _getCurrentLocation();
-    if (_currentPosition != null && _mapController != null) {
-      final locationOverlay = await _mapController!.getLocationOverlay();
-      locationOverlay.setPosition(
-        NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-      );
-      locationOverlay.setIsVisible(true);
-
-      _mapController!.updateCamera(
+  Future<void> moveToCurrentLocation() async {
+    if (_currentPosition == null) {
+      await _getCurrentLocation();
+    } else if (_mapController != null) {
+      await _mapController!.updateCamera(
         NCameraUpdate.withParams(
           target:
               NLatLng(_currentPosition!.latitude, _currentPosition!.longitude),
@@ -137,8 +169,13 @@ class MapViewModel with ChangeNotifier {
     }
   }
 
+  Future<Accessory?> getSelectedAccessory() async {
+    return await _storageService.getSelectedAccessory();
+  }
+
   void clearSelectedStation() {
     _selectedStation = null;
+    _storageService.clearSelections();
     notifyListeners();
   }
 }

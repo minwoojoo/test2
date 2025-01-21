@@ -3,8 +3,11 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_theme.dart';
+import '../../../core/widgets/bottom_navigation_bar.dart';
+import '../../../core/widgets/loading_animation.dart';
 import '../viewmodels/map_viewmodel.dart';
 import '../../../app/routes.dart';
+import '../../../features/rental/views/rental_detail_view.dart';
 
 class MapView extends StatelessWidget {
   const MapView({super.key});
@@ -33,7 +36,9 @@ class _MapContent extends StatelessWidget {
           builder: (context, viewModel, _) {
             if (viewModel.isLoading) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: HoneyLoadingAnimation(
+                  isStationSelected: false,
+                ),
               );
             }
 
@@ -49,15 +54,31 @@ class _MapContent extends StatelessWidget {
             return Stack(
               children: [
                 NaverMap(
-                  onMapReady: (controller) {
+                  onMapReady: (controller) async {
                     viewModel.onMapCreated(controller);
+
+                    // 현재 위치 오버레이 활성화
+                    final locationOverlay =
+                        await controller.getLocationOverlay();
+                    locationOverlay.setIsVisible(true);
+
+                    if (viewModel.currentLocation != null) {
+                      locationOverlay.setPosition(
+                        NLatLng(
+                          viewModel.currentLocation!.latitude,
+                          viewModel.currentLocation!.longitude,
+                        ),
+                      );
+                    }
                   },
                   options: NaverMapViewOptions(
                     initialCameraPosition: NCameraPosition(
-                      target: NLatLng(
-                        viewModel.currentLocation?.latitude ?? 37.5665,
-                        viewModel.currentLocation?.longitude ?? 126.9780,
-                      ),
+                      target: viewModel.currentLocation != null
+                          ? NLatLng(
+                              viewModel.currentLocation!.latitude,
+                              viewModel.currentLocation!.longitude,
+                            )
+                          : const NLatLng(37.5665, 126.9780), // 기본값: 서울시청
                       zoom: 15,
                     ),
                     contentPadding: const EdgeInsets.all(0),
@@ -76,7 +97,7 @@ class _MapContent extends StatelessWidget {
                       Icons.my_location,
                       color: AppColors.black,
                     ),
-                    onPressed: viewModel.refreshLocation,
+                    onPressed: viewModel.moveToCurrentLocation,
                   ),
                 ),
                 if (viewModel.selectedStation != null)
@@ -134,11 +155,26 @@ class _MapContent extends StatelessWidget {
                                 foregroundColor: AppColors.black,
                               ),
                               child: const Text('이 스테이션에서 대여하기'),
-                              onPressed: () {
-                                Navigator.of(context).pushNamed(
-                                  Routes.rental,
-                                  arguments: viewModel.selectedStation,
-                                );
+                              onPressed: () async {
+                                final savedAccessory =
+                                    await viewModel.getSelectedAccessory();
+                                if (savedAccessory != null) {
+                                  if (context.mounted) {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => RentalDetailView(
+                                          accessory: savedAccessory,
+                                          station: viewModel.selectedStation,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  Navigator.of(context).pushNamed(
+                                    Routes.rental,
+                                    arguments: viewModel.selectedStation,
+                                  );
+                                }
                               },
                             ),
                           ),
@@ -151,6 +187,7 @@ class _MapContent extends StatelessWidget {
           },
         ),
       ),
+      bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 1),
     );
   }
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../data/models/user.dart';
 import '../../../data/repositories/user_repository.dart';
 
 class MyPageViewModel extends ChangeNotifier {
   final _authService = AuthService.instance;
   final _userRepository = UserRepository();
+  final _storageService = StorageService.instance;
 
   User? _user;
   String? _error;
@@ -25,6 +27,9 @@ class MyPageViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // 마이페이지 진입 시 선택 정보 삭제
+      await _storageService.clearSelections();
+
       if (!_authService.isAuthenticated) {
         _user = null;
         _error = null;

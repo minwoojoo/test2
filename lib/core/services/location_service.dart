@@ -46,4 +46,26 @@ class LocationService {
       return null;
     }
   }
+
+  Future<bool> hasLocationPermission() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      return permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
+    } catch (e) {
+      print('Failed to check location permission: $e');
+      return false;
+    }
+  }
+
+  Future<bool> requestLocationPermission() async {
+    try {
+      final permission = await Geolocator.requestPermission();
+      return permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
+    } catch (e) {
+      print('Failed to request location permission: $e');
+      return false;
+    }
+  }
 }

@@ -1,14 +1,52 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../data/models/station.dart';
+import '../../data/models/accessory.dart';
 
 class StorageService {
-  late final SharedPreferences _prefs;
-
-  StorageService._();
   static final StorageService instance = StorageService._();
+  StorageService._();
+
+  static const String _selectedStationKey = 'selected_station';
+  static const String _selectedAccessoryKey = 'selected_accessory';
+
+  late SharedPreferences _prefs;
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+  }
+
+  // 스테이션 선택 정보 저장
+  Future<void> setSelectedStation(Station station) async {
+    await _prefs.setString(_selectedStationKey, jsonEncode(station.toJson()));
+  }
+
+  // 스테이션 선택 정보 불러오기
+  Future<Station?> getSelectedStation() async {
+    final stationJson = _prefs.getString(_selectedStationKey);
+    if (stationJson == null) return null;
+    return Station.fromJson(jsonDecode(stationJson));
+  }
+
+  // 액세서리 선택 정보 저장
+  Future<void> setSelectedAccessory(Accessory accessory) async {
+    await _prefs.setString(
+        _selectedAccessoryKey, jsonEncode(accessory.toJson()));
+  }
+
+  // 액세서리 선택 정보 불러오기
+  Future<Accessory?> getSelectedAccessory() async {
+    final accessoryJson = _prefs.getString(_selectedAccessoryKey);
+    if (accessoryJson == null) return null;
+    return Accessory.fromJson(jsonDecode(accessoryJson));
+  }
+
+  // 선택 정보 삭제
+  Future<void> clearSelections() async {
+    await Future.wait([
+      _prefs.remove(_selectedStationKey),
+      _prefs.remove(_selectedAccessoryKey),
+    ]);
   }
 
   Future<bool> setString(String key, String value) async {

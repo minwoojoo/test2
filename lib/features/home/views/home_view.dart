@@ -31,7 +31,20 @@ class _HomeViewState extends State<HomeView> {
               body: SafeArea(
                 child: Consumer<HomeViewModel>(
                   builder: (context, viewModel, child) {
-                    if (!viewModel.hasLocationPermission) {
+                    if (viewModel.isLoading) {
+                      return const Center(
+                        child: HoneyLoadingAnimation(
+                          isStationSelected: false,
+                        ),
+                      );
+                    }
+
+                    if (viewModel.error != null) {
+                      return Center(child: Text(viewModel.error!));
+                    }
+
+                    if (!viewModel.hasLocationPermission &&
+                        !viewModel.isLoading) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -58,50 +71,36 @@ class _HomeViewState extends State<HomeView> {
                               onPressed: () async {
                                 final hasPermission =
                                     await viewModel.requestLocationPermission();
-                                if (!hasPermission) {
-                                  if (context.mounted) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('위치 권한 필요'),
-                                        content: const Text(
-                                          '주변 스테이션을 찾기 위해 위치 권한이 필요합니다.\n설정에서 위치 권한을 허용해주세요.',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            child: const Text('취소'),
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                              // TODO: 시스템 설정으로 이동
-                                            },
-                                            child: const Text('설정으로 이동'),
-                                          ),
-                                        ],
+                                if (!hasPermission && context.mounted) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('위치 권한 필요'),
+                                      content: const Text(
+                                        '주변 스테이션을 찾기 위해 위치 권한이 필요합니다.\n설정에서 위치 권한을 허용해주세요.',
                                       ),
-                                    );
-                                  }
+                                      actions: [
+                                        TextButton(
+                                          child: const Text('취소'),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            // TODO: 시스템 설정으로 이동
+                                          },
+                                          child: const Text('설정으로 이동'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
                                 }
                               },
                             ),
                           ],
                         ),
                       );
-                    }
-
-                    if (viewModel.isLoading) {
-                      return const Center(
-                        child: HoneyLoadingAnimation(
-                          isStationSelected: false,
-                        ),
-                      );
-                    }
-
-                    if (viewModel.error != null) {
-                      return Center(child: Text(viewModel.error!));
                     }
 
                     return RefreshIndicator(
@@ -121,7 +120,6 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                                 child: Column(
                                   children: [
-                                    _buildSearchBar(),
                                     const SizedBox(height: 16),
                                     _buildNoticeSection(context, viewModel),
                                   ],
@@ -383,8 +381,8 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  Material(
-                                    color: Colors.transparent,
+                                  AspectRatio(
+                                    aspectRatio: 2,
                                     child: InkWell(
                                       onTap: () {
                                         Navigator.of(context).pushNamed(
@@ -396,25 +394,11 @@ class _HomeViewState extends State<HomeView> {
                                           },
                                         );
                                       },
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: Colors.grey[300]!,
-                                          ),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: const AspectRatio(
-                                            aspectRatio: 2 / 1,
-                                            child: MapView(
-                                              isPreview: true,
-                                            ),
-                                          ),
-                                        ),
+                                      child: MapView(
+                                        isPreview: true,
+                                        initialPosition:
+                                            viewModel.currentLocation,
+                                        stations: viewModel.nearbyStations,
                                       ),
                                     ),
                                   ),
@@ -433,38 +417,6 @@ class _HomeViewState extends State<HomeView> {
           ),
           const AppBottomNavigationBar(currentIndex: 0),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return InkWell(
-      onTap: () {
-        // TODO: 검색 화면으로 이동
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.search,
-              color: Colors.grey[600],
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '검색',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

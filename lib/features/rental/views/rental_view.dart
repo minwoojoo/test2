@@ -89,6 +89,7 @@ class _RentalContent extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  const SizedBox(height: 24),
                                   if (viewModel.selectedStation != null) ...[
                                     Row(
                                       mainAxisAlignment:
@@ -124,6 +125,7 @@ class _RentalContent extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 8),
                                     Container(
+                                      width: double.infinity,
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
@@ -181,6 +183,39 @@ class _RentalContent extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.search,
+                                          color: Colors.grey[600],
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: TextField(
+                                            onChanged:
+                                                viewModel.searchAccessories,
+                                            decoration: const InputDecoration(
+                                              hintText: '악세사리 검색',
+                                              border: InputBorder.none,
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
                                   SizedBox(
                                     height: 40,
                                     child: ListView(
@@ -194,12 +229,12 @@ class _RentalContent extends StatelessWidget {
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: viewModel
                                                               .selectedCategory ==
-                                                          category
+                                                          category.toString()
                                                       ? AppColors.primary
                                                       : Colors.grey[200],
                                                   foregroundColor: viewModel
                                                               .selectedCategory ==
-                                                          category
+                                                          category.toString()
                                                       ? Colors.white
                                                       : Colors.black,
                                                   padding: const EdgeInsets
@@ -207,8 +242,9 @@ class _RentalContent extends StatelessWidget {
                                                     horizontal: 16,
                                                   ),
                                                 ),
-                                                onPressed: () => viewModel
-                                                    .selectCategory(category),
+                                                onPressed: () =>
+                                                    viewModel.selectCategory(
+                                                        category.toString()),
                                                 child: Text(
                                                   _getCategoryName(category),
                                                 ),

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../data/models/station.dart';
+import '../../app/routes.dart';
 
 class MapView extends StatefulWidget {
+  final Position? initialPosition;
   final bool isPreview;
   final Function(Station)? onStationSelected;
   final List<Station>? stations;
 
   const MapView({
     super.key,
+    this.initialPosition,
     this.isPreview = false,
     this.onStationSelected,
     this.stations,
@@ -24,24 +28,61 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
-    return NaverMap(
-      options: NaverMapViewOptions(
-        initialCameraPosition: const NCameraPosition(
-          target: NLatLng(37.5666102, 126.9783881),
-          zoom: 15,
+    return Stack(
+      children: [
+        NaverMap(
+          options: NaverMapViewOptions(
+            initialCameraPosition: NCameraPosition(
+              target: widget.initialPosition != null
+                  ? NLatLng(
+                      widget.initialPosition!.latitude,
+                      widget.initialPosition!.longitude,
+                    )
+                  : const NLatLng(
+                      37.5665, 126.9780), // Default: Seoul City Hall
+              zoom: 15,
+            ),
+            contentPadding: const EdgeInsets.all(0),
+          ),
+          onMapReady: (controller) async {
+            _mapController = controller;
+
+            // Show current location overlay
+            if (widget.initialPosition != null) {
+              final locationOverlay = await controller.getLocationOverlay();
+              locationOverlay.setPosition(
+                NLatLng(
+                  widget.initialPosition!.latitude,
+                  widget.initialPosition!.longitude,
+                ),
+              );
+              locationOverlay.setIsVisible(true);
+            }
+
+            if (widget.stations != null) {
+              _addStationMarkers();
+            }
+          },
         ),
-      ),
-      onMapReady: (controller) {
-        _mapController = controller;
-        if (widget.stations != null) {
-          _addStationMarkers();
-        }
-      },
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushReplacementNamed(Routes.map);
+          },
+          child: Container(
+            color:
+                Colors.transparent, // Transparent overlay to block interactions
+          ),
+        ),
+      ],
     );
   }
 
-  void _addStationMarkers() {
+  void _addStationMarkers() async {
     if (widget.stations == null) return;
+
+    final markerIcon = await NOverlayImage.fromAssetImage(
+      'assets/images/honey.png',
+    );
 
     for (final station in widget.stations!) {
       final marker = NMarker(
@@ -50,6 +91,9 @@ class _MapViewState extends State<MapView> {
           station.latitude,
           station.longitude,
         ),
+        icon: markerIcon,
+        size: const Size(48, 48),
+        anchor: const NPoint(0.5, 0.5),
       );
 
       marker.setOnTapListener((marker) {

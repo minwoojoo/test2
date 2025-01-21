@@ -3,40 +3,32 @@ import '../../../data/models/accessory.dart';
 import '../../../data/models/station.dart';
 import '../../../data/repositories/accessory_repository.dart';
 import '../../../data/repositories/station_repository.dart';
+import '../../../core/services/storage_service.dart';
 
 class RentalViewModel extends ChangeNotifier {
-  final AccessoryRepository _accessoryRepository;
-  final StationRepository _stationRepository;
+  final AccessoryRepository _accessoryRepository = AccessoryRepository();
+  final StationRepository _stationRepository = StationRepository.instance;
+  final StorageService _storageService = StorageService.instance;
 
   List<Accessory> _accessories = [];
   List<Station> _stations = [];
+  String? _selectedCategory;
   Station? _selectedStation;
   Accessory? _selectedAccessory;
-  AccessoryCategory? _selectedCategory;
+  String _searchQuery = '';
   bool _isLoading = true;
   String? _error;
-
-  RentalViewModel({
-    AccessoryRepository? accessoryRepository,
-    StationRepository? stationRepository,
-  })  : _accessoryRepository = accessoryRepository ?? AccessoryRepository(),
-        _stationRepository = stationRepository ?? StationRepository.instance {
-    _init();
-  }
 
   List<Accessory> get accessories => _accessories;
   List<Station> get stations => _stations;
   Station? get selectedStation => _selectedStation;
   Accessory? get selectedAccessory => _selectedAccessory;
-  AccessoryCategory? get selectedCategory => _selectedCategory;
+  String? get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  List<Accessory> get filteredAccessories {
-    if (_selectedCategory == null) return _accessories;
-    return _accessories
-        .where((accessory) => accessory.category == _selectedCategory)
-        .toList();
+  RentalViewModel() {
+    _init();
   }
 
   Future<void> _init() async {
@@ -49,6 +41,10 @@ class RentalViewModel extends ChangeNotifier {
         _loadAccessories(),
         _loadStations(),
       ]);
+
+      // 저장된 스테이션과 액세서리 정보 불러오기
+      _selectedStation = await _storageService.getSelectedStation();
+      _selectedAccessory = await _storageService.getSelectedAccessory();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -57,28 +53,69 @@ class RentalViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> selectStation(Station station) async {
+    _selectedStation = station;
+    await _storageService.setSelectedStation(station);
+    notifyListeners();
+  }
+
+  Future<void> selectAccessory(Accessory accessory) async {
+    _selectedAccessory = accessory;
+    await _storageService.setSelectedAccessory(accessory);
+    notifyListeners();
+  }
+
+  Future<void> clearSelections() async {
+    _selectedStation = null;
+    _selectedAccessory = null;
+    await _storageService.clearSelections();
+    notifyListeners();
+  }
+
   Future<void> _loadAccessories() async {
-    _accessories = await _accessoryRepository.getAll();
+    final accessories = await _accessoryRepository.getAll();
+    _accessories = accessories;
   }
 
   Future<void> _loadStations() async {
-    _stations = await _stationRepository.getNearbyStations();
+    final stations = await _stationRepository.getNearbyStations();
+    _stations = stations;
   }
 
-  void selectStation(Station station) {
-    _selectedStation = station;
+  List<Accessory> get filteredAccessories {
+    return _accessories.where((accessory) {
+      // 카테고리 필터링
+      if (_selectedCategory != null &&
+          accessory.category.toString() != _selectedCategory) {
+        return false;
+      }
+
+      // 검색어 필터링
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        return accessory.name.toLowerCase().contains(query) ||
+            accessory.description.toLowerCase().contains(query);
+      }
+
+      return true;
+    }).toList();
+  }
+
+  void selectCategory(String category) {
+    if (_selectedCategory == category) {
+      _selectedCategory = null;
+    } else {
+      _selectedCategory = category;
+    }
     notifyListeners();
   }
 
-  void selectAccessory(Accessory accessory) {
-    _selectedAccessory = accessory;
+  void searchAccessories(String query) {
+    _searchQuery = query;
     notifyListeners();
   }
 
-  void selectCategory(AccessoryCategory category) {
-    _selectedCategory = category;
-    notifyListeners();
+  Future<void> refresh() async {
+    await _init();
   }
-
-  Future<void> refresh() => _init();
 }

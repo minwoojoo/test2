@@ -3,22 +3,25 @@ import '../../../data/models/accessory.dart';
 import '../../../data/models/station.dart';
 import '../../../app/routes.dart';
 import '../../station/views/station_selection_view.dart';
+import '../../../core/services/storage_service.dart';
+import '../../../core/widgets/bottom_navigation_bar.dart';
 
 class RentalDetailView extends StatefulWidget {
   final Accessory accessory;
   final Station? station;
 
   const RentalDetailView({
-    super.key,
+    Key? key,
     required this.accessory,
     this.station,
-  });
+  }) : super(key: key);
 
   @override
   State<RentalDetailView> createState() => _RentalDetailViewState();
 }
 
 class _RentalDetailViewState extends State<RentalDetailView> {
+  final _storageService = StorageService.instance;
   Station? _selectedStation;
   int _selectedHours = 1;
 
@@ -26,6 +29,18 @@ class _RentalDetailViewState extends State<RentalDetailView> {
   void initState() {
     super.initState();
     _selectedStation = widget.station;
+    _loadSelectedStation();
+  }
+
+  Future<void> _loadSelectedStation() async {
+    if (_selectedStation != null) return;
+
+    final savedStation = await _storageService.getSelectedStation();
+    if (savedStation != null) {
+      setState(() {
+        _selectedStation = savedStation;
+      });
+    }
   }
 
   Future<void> _selectStation() async {
@@ -343,6 +358,7 @@ class _RentalDetailViewState extends State<RentalDetailView> {
           ],
         ),
       ),
+      bottomNavigationBar: const AppBottomNavigationBar(currentIndex: 1),
     );
   }
 }
