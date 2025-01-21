@@ -50,14 +50,19 @@ class _EditProfileViewState extends State<EditProfileView> {
     });
 
     try {
-      // TODO: 프로필 수정 API 연동
-      await Future.delayed(const Duration(seconds: 1));
+      await AuthService.instance.updateProfile(
+        name: name,
+        phoneNumber: phone,
+      );
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('프로필이 수정되었습니다.')),
+        );
         Navigator.of(context).pop();
       }
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = '프로필 수정에 실패했습니다. 다시 시도해주세요.';
       });
     } finally {
       if (mounted) {

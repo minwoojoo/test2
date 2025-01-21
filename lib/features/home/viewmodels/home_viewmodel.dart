@@ -123,6 +123,30 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
-    await _init();
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await Future.wait([
+        _loadRentals(),
+        _loadNearbyStations(),
+        _loadNotices(),
+      ]);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshRemainingTime() async {
+    try {
+      await _loadRentals();
+      notifyListeners();
+    } catch (e) {
+      print('Failed to refresh remaining time: $e');
+    }
   }
 }

@@ -9,46 +9,46 @@ class RentalViewModel extends ChangeNotifier {
   final StationRepository _stationRepository;
 
   List<Accessory> _accessories = [];
-  List<Station> _nearbyStations = [];
-  AccessoryCategory _selectedCategory = AccessoryCategory.charger;
-  Accessory? _selectedAccessory;
+  List<Station> _stations = [];
   Station? _selectedStation;
-  bool _isLoading = false;
+  Accessory? _selectedAccessory;
+  AccessoryCategory? _selectedCategory;
+  bool _isLoading = true;
   String? _error;
 
   RentalViewModel({
     AccessoryRepository? accessoryRepository,
     StationRepository? stationRepository,
-    Station? initialStation,
   })  : _accessoryRepository = accessoryRepository ?? AccessoryRepository(),
-        _stationRepository = stationRepository ?? StationRepository.instance,
-        _selectedStation = initialStation {
-    loadAccessories();
-    if (initialStation == null) {
-      loadNearbyStations();
-    }
+        _stationRepository = stationRepository ?? StationRepository.instance {
+    _init();
   }
 
   List<Accessory> get accessories => _accessories;
-  List<Station> get nearbyStations => _nearbyStations;
-  List<Accessory> get filteredAccessories => _accessories
-      .where((a) => a.category == _selectedCategory && a.isAvailable)
-      .toList();
-  AccessoryCategory get selectedCategory => _selectedCategory;
-  Accessory? get selectedAccessory => _selectedAccessory;
+  List<Station> get stations => _stations;
   Station? get selectedStation => _selectedStation;
+  Accessory? get selectedAccessory => _selectedAccessory;
+  AccessoryCategory? get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get canProceedToPayment =>
-      _selectedAccessory != null && _selectedStation != null;
 
-  Future<void> loadAccessories() async {
+  List<Accessory> get filteredAccessories {
+    if (_selectedCategory == null) return _accessories;
+    return _accessories
+        .where((accessory) => accessory.category == _selectedCategory)
+        .toList();
+  }
+
+  Future<void> _init() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _accessories = await _accessoryRepository.getAll();
+      await Future.wait([
+        _loadAccessories(),
+        _loadStations(),
+      ]);
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -57,23 +57,16 @@ class RentalViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> loadNearbyStations() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      _nearbyStations = await _stationRepository.getNearbyStations();
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  Future<void> _loadAccessories() async {
+    _accessories = await _accessoryRepository.getAll();
   }
 
-  void selectCategory(AccessoryCategory category) {
-    _selectedCategory = category;
+  Future<void> _loadStations() async {
+    _stations = await _stationRepository.getNearbyStations();
+  }
+
+  void selectStation(Station station) {
+    _selectedStation = station;
     notifyListeners();
   }
 
@@ -82,21 +75,10 @@ class RentalViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectStation(Station station) {
-    _selectedStation = station;
+  void selectCategory(AccessoryCategory category) {
+    _selectedCategory = category;
     notifyListeners();
   }
 
-  Future<void> refresh() async {
-    await loadAccessories();
-    if (_selectedStation == null) {
-      await loadNearbyStations();
-    }
-  }
-
-  void reset() {
-    _selectedAccessory = null;
-    _selectedStation = null;
-    notifyListeners();
-  }
+  Future<void> refresh() => _init();
 }

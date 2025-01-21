@@ -101,4 +101,20 @@ class AuthService {
       throw Exception('로그아웃 실패: ${e.toString()}');
     }
   }
+
+  Future<void> updateProfile({
+    required String name,
+    required String phoneNumber,
+  }) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) throw Exception('로그인이 필요합니다.');
+
+    try {
+      await user.updateDisplayName(name);
+      // TODO: phoneNumber 업데이트는 Firebase에서 직접 지원하지 않으므로
+      // 필요한 경우 Firestore나 다른 데이터베이스에 저장
+    } catch (e) {
+      throw Exception('프로필 업데이트에 실패했습니다: $e');
+    }
+  }
 }

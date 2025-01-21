@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/rental_viewmodel.dart';
 import '../../../data/models/accessory.dart';
+import '../../../data/models/station.dart';
 import '../../../core/widgets/bottom_navigation_bar.dart';
 import '../../../app/routes.dart';
 import './rental_detail_view.dart';
@@ -89,12 +90,37 @@ class _RentalContent extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (viewModel.selectedStation != null) ...[
-                                    const Text(
-                                      '선택된 스테이션',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          '선택된 스테이션',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            final station =
+                                                await Navigator.of(context)
+                                                    .pushNamed(
+                                              Routes.map,
+                                              arguments: {
+                                                'onStationSelected': true,
+                                                'stations': viewModel.stations,
+                                              },
+                                            );
+                                            if (station != null &&
+                                                context.mounted) {
+                                              viewModel.selectStation(
+                                                  station as Station);
+                                            }
+                                          },
+                                          child: const Text('변경'),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 8),
                                     Container(
@@ -126,6 +152,23 @@ class _RentalContent extends StatelessWidget {
                                             ),
                                           ),
                                         ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                  ] else ...[
+                                    Container(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pushNamed(
+                                            Routes.map,
+                                            arguments: {
+                                              'onStationSelected': true,
+                                              'stations': viewModel.stations,
+                                            },
+                                          );
+                                        },
+                                        child: const Text('스테이션 선택'),
                                       ),
                                     ),
                                     const SizedBox(height: 24),
