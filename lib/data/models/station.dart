@@ -2,17 +2,17 @@ class Station {
   final String id;
   final String name;
   final String address;
-  final double latitude;
-  final double longitude;
   final bool isActive;
+  final double? latitude;
+  final double? longitude;
 
   const Station({
     required this.id,
     required this.name,
     required this.address,
-    required this.latitude,
-    required this.longitude,
     this.isActive = true,
+    this.latitude,
+    this.longitude,
   });
 
   factory Station.fromJson(Map<String, dynamic> json) {
@@ -20,8 +20,9 @@ class Station {
       id: json['id'] as String,
       name: json['name'] as String,
       address: json['address'] as String,
-      latitude: json['latitude'] as double,
-      longitude: json['longitude'] as double,
+      isActive: json['isActive'] as bool? ?? true,
+      latitude: json['latitude'] as double?,
+      longitude: json['longitude'] as double?,
     );
   }
 
@@ -30,6 +31,7 @@ class Station {
       'id': id,
       'name': name,
       'address': address,
+      'isActive': isActive,
       'latitude': latitude,
       'longitude': longitude,
     };

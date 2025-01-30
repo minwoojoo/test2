@@ -110,4 +110,8 @@ class StorageService {
   bool containsKey(String key) {
     return _prefs.containsKey(key);
   }
+
+  Future<void> saveSelectedStation(Station station) async {
+    await _prefs.setString('selected_station_id', station.id);
+  }
 }

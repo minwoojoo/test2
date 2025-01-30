@@ -11,19 +11,45 @@ class RentalViewModel extends ChangeNotifier {
   final StorageService _storageService = StorageService.instance;
 
   List<Accessory> _accessories = [];
-  List<Station> _stations = [];
-  String? _selectedCategory;
+  List<Accessory> _filteredAccessories = [];
+  String _selectedCategory = '';
+  String _searchQuery = '';
+  final List<Station> _stations = [
+    Station(
+      id: 'S1',
+      name: '강남역점',
+      address: '서울특별시 강남구 강남대로 396',
+      isActive: true,
+    ),
+    Station(
+      id: 'S2',
+      name: '홍대입구역점',
+      address: '서울특별시 마포구 홍대로 123',
+      isActive: true,
+    ),
+    Station(
+      id: 'S3',
+      name: '명동점',
+      address: '서울특별시 중구 명동길 45',
+      isActive: true,
+    ),
+    Station(
+      id: 'S4',
+      name: '여의도역점',
+      address: '서울특별시 영등포구 여의도로 789',
+      isActive: true,
+    ),
+  ];
   Station? _selectedStation;
   Accessory? _selectedAccessory;
-  String _searchQuery = '';
-  bool _isLoading = true;
+  bool _isLoading = false;
   String? _error;
 
   List<Accessory> get accessories => _accessories;
   List<Station> get stations => _stations;
   Station? get selectedStation => _selectedStation;
   Accessory? get selectedAccessory => _selectedAccessory;
-  String? get selectedCategory => _selectedCategory;
+  String get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -33,18 +59,15 @@ class RentalViewModel extends ChangeNotifier {
 
   Future<void> _init() async {
     _isLoading = true;
-    _error = null;
     notifyListeners();
 
     try {
-      await Future.wait([
-        _loadAccessories(),
-        _loadStations(),
-      ]);
+      // AccessoryRepository에서 모든 악세사리 데이터 가져오기
+      _accessories = await _accessoryRepository.getAll();
+      _filteredAccessories = _accessories;
 
-      // 저장된 스테이션과 액세서리 정보 불러오기
+      // 저장된 스테이션 정보 불러오기
       _selectedStation = await _storageService.getSelectedStation();
-      _selectedAccessory = await _storageService.getSelectedAccessory();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -72,47 +95,28 @@ class RentalViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _loadAccessories() async {
-    final accessories = await _accessoryRepository.getAll();
-    _accessories = accessories;
-  }
-
-  Future<void> _loadStations() async {
-    final stations = await _stationRepository.getNearbyStations();
-    _stations = stations;
-  }
-
-  List<Accessory> get filteredAccessories {
-    return _accessories.where((accessory) {
-      // 카테고리 필터링
-      if (_selectedCategory != null &&
-          accessory.category.toString() != _selectedCategory) {
-        return false;
-      }
-
-      // 검색어 필터링
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        return accessory.name.toLowerCase().contains(query) ||
-            accessory.description.toLowerCase().contains(query);
-      }
-
-      return true;
-    }).toList();
-  }
+  List<Accessory> get filteredAccessories => _filteredAccessories;
 
   void selectCategory(String category) {
-    if (_selectedCategory == category) {
-      _selectedCategory = null;
-    } else {
-      _selectedCategory = category;
-    }
+    _selectedCategory = category;
+    _filterAccessories();
     notifyListeners();
   }
 
   void searchAccessories(String query) {
     _searchQuery = query;
+    _filterAccessories();
     notifyListeners();
+  }
+
+  void _filterAccessories() {
+    _filteredAccessories = _accessories.where((accessory) {
+      bool categoryMatch = _selectedCategory.isEmpty ||
+          accessory.category.toString() == _selectedCategory;
+      bool searchMatch = _searchQuery.isEmpty ||
+          accessory.name.toLowerCase().contains(_searchQuery.toLowerCase());
+      return categoryMatch && searchMatch;
+    }).toList();
   }
 
   Future<void> refresh() async {

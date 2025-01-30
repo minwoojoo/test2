@@ -1,8 +1,31 @@
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
-  static final LocationService instance = LocationService._();
-  LocationService._();
+  static final LocationService _instance = LocationService._internal();
+  static LocationService get instance => _instance;
+
+  LocationService._internal();
+
+  Future<Position?> getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return null;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return null;
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
 
   Future<bool> requestPermission() async {
     bool serviceEnabled;
@@ -30,21 +53,6 @@ class LocationService {
 
     return permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse;
-  }
-
-  Future<Position?> getCurrentLocation() async {
-    try {
-      final hasPermission = await requestPermission();
-      if (!hasPermission) {
-        return null;
-      }
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-    } catch (e) {
-      print('Failed to get current location: $e');
-      return null;
-    }
   }
 
   Future<bool> hasLocationPermission() async {

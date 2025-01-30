@@ -381,26 +381,57 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                   ),
                                   const SizedBox(height: 16),
-                                  AspectRatio(
-                                    aspectRatio: 2,
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.of(context).pushNamed(
-                                          Routes.map,
-                                          arguments: {
-                                            'onStationSelected': true,
-                                            'stations':
-                                                viewModel.nearbyStations,
-                                          },
-                                        );
-                                      },
-                                      child: MapView(
-                                        isPreview: true,
-                                        initialPosition:
-                                            viewModel.currentLocation,
-                                        stations: viewModel.nearbyStations,
-                                      ),
-                                    ),
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: viewModel.nearbyStations.length,
+                                    separatorBuilder: (context, index) =>
+                                        const SizedBox(height: 8),
+                                    itemBuilder: (context, index) {
+                                      final station =
+                                          viewModel.nearbyStations[index];
+                                      return InkWell(
+                                        onTap: () async {
+                                          // 스테이션을 선택하고 저장
+                                          await viewModel
+                                              .selectStation(station);
+                                          if (context.mounted) {
+                                            Navigator.of(context).pushNamed(
+                                              Routes.rental,
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: Colors.grey[300]!,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                station.name,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.chevron_right,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                   const SizedBox(height: 48),
                                 ],

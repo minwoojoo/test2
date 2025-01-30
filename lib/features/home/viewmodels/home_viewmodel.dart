@@ -18,7 +18,40 @@ class HomeViewModel extends ChangeNotifier {
   final AuthService _authService;
   final StorageService _storageService;
 
-  List<Station> _nearbyStations = [];
+  List<Station> _nearbyStations = [
+    Station(
+      id: 'S1',
+      name: '강남역',
+      address: '서울특별시 강남구 강남대로 396',
+      latitude: 37.4979,
+      longitude: 127.0276,
+      isActive: true,
+    ),
+    Station(
+      id: 'S2',
+      name: '홍대입구역',
+      address: '서울특별시 마포구 홍대로 123',
+      latitude: 37.5575,
+      longitude: 126.9244,
+      isActive: true,
+    ),
+    Station(
+      id: 'S3',
+      name: '명동점',
+      address: '서울특별시 중구 명동길 45',
+      latitude: 37.5634,
+      longitude: 126.9850,
+      isActive: true,
+    ),
+    Station(
+      id: 'S4',
+      name: '여의도역',
+      address: '서울특별시 영등포구 여의도로 789',
+      latitude: 37.5215,
+      longitude: 126.9243,
+      isActive: true,
+    ),
+  ];
   List<Rental> _recentRentals = [];
   List<Rental> _activeRentals = [];
   List<Notice> _notices = [];
@@ -174,5 +207,9 @@ class HomeViewModel extends ChangeNotifier {
 
     notifyListeners();
     return _hasLocationPermission;
+  }
+
+  Future<void> selectStation(Station station) async {
+    await _storageService.setSelectedStation(station);
   }
 }

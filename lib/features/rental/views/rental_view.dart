@@ -86,6 +86,12 @@ class _RentalContent extends StatelessWidget {
                           SliverToBoxAdapter(
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
+                              child: _buildStationSection(context, viewModel),
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -250,6 +256,133 @@ class _RentalContent extends StatelessWidget {
         ),
         const AppBottomNavigationBar(currentIndex: 1),
       ],
+    );
+  }
+
+  Widget _buildStationSection(BuildContext context, RentalViewModel viewModel) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '스테이션 정보',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (viewModel.selectedStation != null) ...[
+            Text(
+              viewModel.selectedStation!.name,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              viewModel.selectedStation!.address,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return StationSelectionBottomSheet(
+                      stations: viewModel.stations,
+                      selectedStation: viewModel.selectedStation,
+                      onStationSelected: viewModel.selectStation,
+                    );
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text('스테이션 선택'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StationSelectionBottomSheet extends StatelessWidget {
+  final List<Station> stations;
+  final Station? selectedStation;
+  final Function(Station) onStationSelected;
+
+  const StationSelectionBottomSheet({
+    super.key,
+    required this.stations,
+    this.selectedStation,
+    required this.onStationSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text(
+        '스테이션 선택',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: Container(
+        width: double.maxFinite,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Divider(),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: stations.length,
+                itemBuilder: (context, index) {
+                  final station = stations[index];
+                  final isSelected = selectedStation?.id == station.id;
+
+                  return ListTile(
+                    title: Text(
+                      station.name,
+                      style: TextStyle(
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    subtitle: Text(station.address),
+                    trailing: isSelected
+                        ? const Icon(Icons.check, color: Colors.blue)
+                        : null,
+                    onTap: () {
+                      onStationSelected(station);
+                      Navigator.pop(context); // 선택 후 다이얼로그 닫기
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
