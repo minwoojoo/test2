@@ -19,6 +19,9 @@ import 'features/payment/views/payment_view.dart';
 import 'features/rental/views/rental_view.dart';
 import 'features/rental/views/rental_status_view.dart';
 import 'features/rental/views/rental_history_view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'features/auth/viewmodels/signup_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +29,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await AuthService.initialize();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => SignUpViewModel(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -89,5 +97,78 @@ class MyApp extends StatelessWidget {
         Routes.noticeList: (context) => const NoticeListView(),
       },
     );
+  }
+}
+
+class FirebaseConfig {
+  static const FirebaseOptions firebaseOptions = FirebaseOptions(
+    apiKey: "AIzaSyAhldvpALpCn26hEEtd5KM51oGNEnzy5yw",
+    appId: "1:333666239496:web:ffcc64c061b08332f33dbd",
+    messagingSenderId: "333666239496",
+    projectId: "bannabee-b15ef",
+    storageBucket: "bannabee-b15ef.appspot.com",
+    authDomain: "bannabee-b15ef.firebaseapp.com",
+  );
+
+  static Future<void> initializeApp() async {
+    await Firebase.initializeApp(
+      options: firebaseOptions,
+    );
+  }
+}
+
+class UserService {
+  final CollectionReference _usersCollection =
+      FirebaseFirestore.instance.collection('users');
+
+  // 사용자 생성
+  Future<void> createUser(String userId, Map<String, dynamic> userData) async {
+    try {
+      await _usersCollection.doc(userId).set(userData);
+    } catch (e) {
+      print('사용자 생성 중 오류 발생: $e');
+      rethrow;
+    }
+  }
+
+  // 사용자 조회
+  Future<Map<String, dynamic>?> getUser(String userId) async {
+    try {
+      final DocumentSnapshot doc = await _usersCollection.doc(userId).get();
+      return doc.exists ? doc.data() as Map<String, dynamic> : null;
+    } catch (e) {
+      print('사용자 조회 중 오류 발생: $e');
+      rethrow;
+    }
+  }
+
+  // 사용자 업데이트
+  Future<void> updateUser(String userId, Map<String, dynamic> userData) async {
+    try {
+      await _usersCollection.doc(userId).update(userData);
+    } catch (e) {
+      print('사용자 업데이트 중 오류 발생: $e');
+      rethrow;
+    }
+  }
+
+  // 사용자 삭제
+  Future<void> deleteUser(String userId) async {
+    try {
+      await _usersCollection.doc(userId).delete();
+    } catch (e) {
+      print('사용자 삭제 중 오류 발생: $e');
+      rethrow;
+    }
+  }
+
+  // 실시간 사용자 데이터 스트림
+  Stream<DocumentSnapshot> getUserStream(String userId) {
+    return _usersCollection.doc(userId).snapshots();
+  }
+
+  // 모든 사용자 실시간 스트림
+  Stream<QuerySnapshot> getAllUsersStream() {
+    return _usersCollection.snapshots();
   }
 }
